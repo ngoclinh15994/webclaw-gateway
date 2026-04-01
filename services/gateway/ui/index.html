@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebClaw Hybrid Gateway</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen">
+    <main class="max-w-5xl mx-auto p-6 space-y-6">
+      <section class="bg-slate-900 rounded-xl p-5 border border-slate-800">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <h1 id="title-main" class="text-2xl font-bold">WebClaw Hybrid Gateway</h1>
+          <div class="flex items-center gap-2">
+            <button
+              id="lang-toggle-btn"
+              class="bg-slate-700 hover:bg-slate-600 text-slate-100 font-semibold px-3 py-2 rounded"
+              type="button"
+            >
+              EN
+            </button>
+            <button
+              id="install-openclaw-btn"
+              class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded"
+              type="button"
+            >
+              ⚡ Install OpenClaw Skill
+            </button>
+          </div>
+        </div>
+        <p id="subtitle-kpi" class="text-slate-400 mt-1">Primary KPI: token reduction percentage (%)</p>
+        <p id="integration-message" class="text-sm mt-2"></p>
+        <div class="grid md:grid-cols-3 gap-3 mt-4">
+          <div class="bg-slate-800 rounded p-3">
+            <p id="label-server-status" class="text-slate-400 text-sm">Server Status</p>
+            <p class="text-sm mt-1">
+              <span id="label-host">Host</span>: <span id="server-host" class="font-semibold">localhost</span>
+            </p>
+            <p class="text-sm">
+              <span id="label-port">Port</span>: <span class="font-semibold">8822</span>
+            </p>
+            <p class="text-sm flex items-center gap-2">
+              <span class="text-green-500">●</span>
+              <span id="server-status" class="font-semibold text-green-500">Ready</span>
+            </p>
+          </div>
+          <div class="bg-slate-800 rounded p-3">
+            <p id="label-total-requests" class="text-slate-400 text-sm">Total Requests</p>
+            <p id="total-requests" class="text-xl font-semibold">0</p>
+          </div>
+          <div class="bg-slate-800 rounded p-3">
+            <p id="label-total-tokens-saved" class="text-slate-400 text-sm">Total Tokens Saved</p>
+            <p id="total-tokens-saved" class="text-xl font-semibold">0</p>
+          </div>
+        </div>
+
+        <section class="mt-4 bg-slate-800 rounded p-4 space-y-3">
+          <h2 id="exclude-title" class="text-lg font-semibold">Exclude URLs (Blacklist)</h2>
+          <form id="exclude-form" class="flex flex-col md:flex-row gap-2">
+            <input
+              id="exclude-input"
+              class="flex-1 bg-slate-900 border border-slate-700 rounded px-3 py-2"
+              placeholder="youtube.com or localhost"
+              required
+            />
+            <button
+              id="exclude-add-btn"
+              class="bg-rose-600 hover:bg-rose-500 px-4 py-2 rounded font-medium"
+              type="submit"
+            >
+              Add
+            </button>
+          </form>
+          <p id="exclude-error" class="text-rose-400 text-sm"></p>
+          <ul id="exclude-list" class="space-y-2"></ul>
+        </section>
+      </section>
+
+      <section class="bg-slate-900 rounded-xl p-5 border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 id="history-title" class="text-lg font-semibold">Recent Scrape History</h2>
+          <div class="flex items-center gap-2">
+            <button id="history-prev" class="px-3 py-1 rounded bg-slate-700 text-sm">Prev</button>
+            <button id="history-next" class="px-3 py-1 rounded bg-slate-700 text-sm">Next</button>
+          </div>
+        </div>
+        <p id="history-page" class="text-sm text-slate-400">Offset: 0</p>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-slate-400">
+              <th id="history-col-time" class="py-2">Time</th>
+              <th id="history-col-engine" class="py-2">Engine</th>
+              <th id="history-col-saved" class="py-2">Saved</th>
+              <th id="history-col-reduction" class="py-2">Reduction</th>
+              <th id="history-col-url" class="py-2">URL</th>
+            </tr>
+          </thead>
+          <tbody id="history-table"></tbody>
+        </table>
+      </section>
+
+      <section class="bg-slate-900 rounded-xl p-5 border border-slate-800 space-y-4">
+        <h2 id="cookie-title" class="text-lg font-semibold">Cookie Manager</h2>
+        <form id="cookie-form" class="grid md:grid-cols-3 gap-3">
+          <input id="cookie-domain" required placeholder="domain (example.com)" class="bg-slate-800 border border-slate-700 rounded px-3 py-2" />
+          <input id="cookie-string" required placeholder="cookie_string (a=1; b=2)" class="bg-slate-800 border border-slate-700 rounded px-3 py-2 md:col-span-2" />
+          <button id="cookie-add-btn" type="submit" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded font-medium md:col-span-3">Add Cookie Entry</button>
+        </form>
+        <p id="cookie-error" class="text-rose-400 text-sm"></p>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-slate-400">
+              <th id="cookie-col-domain" class="py-2">Domain</th>
+              <th id="cookie-col-string" class="py-2">Cookie String</th>
+              <th id="cookie-col-action" class="py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody id="cookie-table"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
