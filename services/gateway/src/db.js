@@ -45,7 +45,11 @@ const countHistoryStmt = db.prepare(`SELECT COUNT(*) AS total FROM scrape_histor
 const statsStmt = db.prepare(`
   SELECT
     COUNT(*) AS total_requests,
-    COALESCE(SUM(tokens_saved), 0) AS total_tokens_saved
+    COALESCE(SUM(tokens_saved), 0) AS total_tokens_saved,
+    CASE
+      WHEN COALESCE(SUM(raw_tokens), 0) = 0 THEN 0
+      ELSE (CAST(COALESCE(SUM(tokens_saved), 0) AS REAL) / NULLIF(SUM(raw_tokens), 0)) * 100
+    END AS overall_reduction_percentage
   FROM scrape_history
 `);
 

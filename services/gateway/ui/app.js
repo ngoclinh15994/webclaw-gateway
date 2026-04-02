@@ -4,7 +4,19 @@ const integrationMessage = document.getElementById("integration-message");
 const serverHost = document.getElementById("server-host");
 const serverStatus = document.getElementById("server-status");
 const totalRequests = document.getElementById("total-requests");
-const totalTokensSaved = document.getElementById("total-tokens-saved");
+const overallReductionPercent = document.getElementById("overall-reduction-percent");
+const totalTokensSavedSub = document.getElementById("total-tokens-saved-sub");
+const openclawModal = document.getElementById("openclaw-modal");
+const openclawWizardLog = document.getElementById("openclaw-wizard-log");
+const openclawModalClose = document.getElementById("openclaw-modal-close");
+
+const INSTALL_BTN_CLASS_DEFAULT =
+  "bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded";
+const INSTALL_BTN_CLASS_INSTALLED =
+  "bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded shadow-sm ring-1 ring-emerald-500/30";
+
+let openClawSkillInstalled = false;
+let openClawWizardRunning = false;
 
 const excludeForm = document.getElementById("exclude-form");
 const excludeInput = document.getElementById("exclude-input");
@@ -35,7 +47,18 @@ const I18N = {
     port: "Port",
     ready: "Ready",
     totalRequests: "Total Requests",
-    totalTokensSaved: "Total Tokens Saved",
+    overallReductionKpi: "Overall Reduction",
+    tokensSavedSubLine: "{n} total tokens saved",
+    installSkillInstalled: "✅ OpenClaw Skill Installed",
+    wizardTitle: "OpenClaw Skill Installation",
+    wizardClose: "Close",
+    wizardStep1: "[⏳] Initializing WebClaw Gateway integration...",
+    wizardStep2Search: "[⏳] Searching for OpenClaw installation directory (~/.openclaw)...",
+    wizardStep2Found: "[✅] OpenClaw directory found.",
+    wizardStep2Error: "[❌] Error: OpenClaw directory not found on this machine.",
+    wizardStep3: "[⏳] Generating and writing SKILL.md template...",
+    wizardStep4: "[✅] Success! Skill successfully registered.",
+    wizardPostError: "[❌] Error: {msg}",
     excludeTitle: "Exclude URLs (Blacklist)",
     excludePlaceholder: "youtube.com or localhost",
     add: "Add",
@@ -68,7 +91,18 @@ const I18N = {
     port: "Cổng",
     ready: "Sẵn sàng",
     totalRequests: "Tổng số Request",
-    totalTokensSaved: "Tổng token đã tiết kiệm",
+    overallReductionKpi: "Tổng mức giảm",
+    tokensSavedSubLine: "{n} token đã tiết kiệm",
+    installSkillInstalled: "✅ Đã cài Skill OpenClaw",
+    wizardTitle: "Cài đặt Skill OpenClaw",
+    wizardClose: "Đóng",
+    wizardStep1: "[⏳] Đang khởi tạo tích hợp WebClaw Gateway...",
+    wizardStep2Search: "[⏳] Đang tìm thư mục OpenClaw (~/.openclaw)...",
+    wizardStep2Found: "[✅] Đã tìm thấy thư mục OpenClaw.",
+    wizardStep2Error: "[❌] Lỗi: Không tìm thấy thư mục OpenClaw trên máy này.",
+    wizardStep3: "[⏳] Đang tạo và ghi file SKILL.md...",
+    wizardStep4: "[✅] Thành công! Skill đã được đăng ký.",
+    wizardPostError: "[❌] Lỗi: {msg}",
     excludeTitle: "Exclude URLs (Blacklist)",
     excludePlaceholder: "youtube.com hoặc localhost",
     add: "Thêm",
@@ -101,6 +135,49 @@ function t(key) {
   return I18N[currentLang][key] || key;
 }
 
+function formatNumber(n) {
+  const num = Number(n);
+  if (!Number.isFinite(num)) return "0";
+  return num.toLocaleString(currentLang === "vi" ? "vi-VN" : "en-US");
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function applyInstallButtonState() {
+  if (openClawSkillInstalled) {
+    installOpenclawBtn.textContent = t("installSkillInstalled");
+    installOpenclawBtn.className = INSTALL_BTN_CLASS_INSTALLED;
+  } else {
+    installOpenclawBtn.textContent = t("installSkill");
+    installOpenclawBtn.className = INSTALL_BTN_CLASS_DEFAULT;
+  }
+}
+
+async function loadOpenClawStatus() {
+  try {
+    const res = await fetch("/api/v1/integrate/openclaw/status");
+    const json = await res.json();
+    if (res.ok && json.status === "success") {
+      openClawSkillInstalled = !!json.installed;
+    } else {
+      openClawSkillInstalled = false;
+    }
+  } catch {
+    openClawSkillInstalled = false;
+  }
+  applyInstallButtonState();
+}
+
+function appendWizardLine(text) {
+  const line = document.createElement("div");
+  line.className = "whitespace-pre-wrap";
+  line.textContent = text;
+  openclawWizardLog.appendChild(line);
+  openclawWizardLog.scrollTop = openclawWizardLog.scrollHeight;
+}
+
 function renderLanguage() {
   document.getElementById("title-main").textContent = t("titleMain");
   document.getElementById("subtitle-kpi").textContent = t("subtitleKpi");
@@ -109,7 +186,7 @@ function renderLanguage() {
   document.getElementById("label-port").textContent = t("port");
   serverStatus.textContent = t("ready");
   document.getElementById("label-total-requests").textContent = t("totalRequests");
-  document.getElementById("label-total-tokens-saved").textContent = t("totalTokensSaved");
+  document.getElementById("label-overall-reduction").textContent = t("overallReductionKpi");
   document.getElementById("exclude-title").textContent = t("excludeTitle");
   excludeInput.placeholder = t("excludePlaceholder");
   document.getElementById("exclude-add-btn").textContent = t("add");
@@ -128,11 +205,14 @@ function renderLanguage() {
   document.getElementById("cookie-col-domain").textContent = t("cookieColDomain");
   document.getElementById("cookie-col-string").textContent = t("cookieColString");
   document.getElementById("cookie-col-action").textContent = t("cookieColAction");
-  installOpenclawBtn.textContent = t("installSkill");
+  document.getElementById("openclaw-modal-title").textContent = t("wizardTitle");
+  openclawModalClose.textContent = t("wizardClose");
+  applyInstallButtonState();
   langToggleBtn.textContent = currentLang.toUpperCase();
   renderCookies();
   renderExcludeList();
   updateHistoryPageLabel();
+  loadStats().catch(() => {});
 }
 
 function updateHistoryPageLabel() {
@@ -170,10 +250,52 @@ function renderExcludeList() {
   }
 }
 
+function stripLeadingDot(domain) {
+  return String(domain || "").replace(/^\./, "").trim();
+}
+
+/**
+ * Gateway stores either manual rows { domain, cookie_string } or Chrome API objects
+ * { name, value, domain, path, ... }. The UI table only shows domain + cookie_string,
+ * so we normalize Chrome entries for display and for round-trip save.
+ */
+function normalizeStoredCookiesForUi(raw) {
+  if (!Array.isArray(raw) || raw.length === 0) return [];
+  const manualRows = [];
+  const chromeByDomain = new Map();
+
+  for (const entry of raw) {
+    if (!entry || typeof entry !== "object") continue;
+
+    if (entry.cookie_string && entry.domain) {
+      manualRows.push({
+        domain: stripLeadingDot(entry.domain),
+        cookie_string: entry.cookie_string
+      });
+      continue;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(entry, "name") && entry.value != null && entry.domain) {
+      const dom = stripLeadingDot(entry.domain).toLowerCase();
+      if (!dom) continue;
+      const pair = `${entry.name}=${entry.value}`;
+      if (!chromeByDomain.has(dom)) chromeByDomain.set(dom, []);
+      chromeByDomain.get(dom).push(pair);
+    }
+  }
+
+  const chromeRows = [];
+  for (const [dom, pairs] of chromeByDomain) {
+    chromeRows.push({ domain: dom, cookie_string: pairs.join("; ") });
+  }
+
+  return [...manualRows, ...chromeRows];
+}
+
 async function loadCookies() {
   const res = await fetch("/api/v1/cookies");
   const json = await res.json();
-  cookiesState = Array.isArray(json.cookies) ? json.cookies.filter((x) => x.domain && x.cookie_string) : [];
+  cookiesState = normalizeStoredCookiesForUi(json.cookies);
   renderCookies();
 }
 
@@ -212,7 +334,10 @@ async function loadStats() {
   const json = await res.json();
   if (!res.ok || json.status !== "success") throw new Error(json.message || "Failed to load stats");
   totalRequests.textContent = String(json.stats?.total_requests || 0);
-  totalTokensSaved.textContent = String(json.stats?.total_tokens_saved || 0);
+  const pct = Number(json.stats?.overall_reduction_percentage ?? 0);
+  const totalSaved = Number(json.stats?.total_tokens_saved ?? 0);
+  overallReductionPercent.textContent = `${Number.isFinite(pct) ? pct.toFixed(1) : "0.0"}%`;
+  totalTokensSavedSub.textContent = t("tokensSavedSubLine").replace("{n}", formatNumber(totalSaved));
 }
 
 function renderHistory(items) {
@@ -317,27 +442,102 @@ historyNext.addEventListener("click", async () => {
   await loadHistory();
 });
 
-installOpenclawBtn.addEventListener("click", async () => {
+async function runOpenClawInstallWizard() {
+  if (openClawWizardRunning) return;
+  openClawWizardRunning = true;
   integrationMessage.textContent = "";
   integrationMessage.className = "text-sm mt-2";
+  openclawWizardLog.innerHTML = "";
+  openclawModal.classList.remove("hidden");
+  installOpenclawBtn.disabled = true;
+  openclawModalClose.disabled = true;
+
   try {
-    const res = await fetch("/api/v1/integrate/openclaw", { method: "POST" });
-    const json = await res.json();
-    if (!res.ok || json.status !== "success") throw new Error(json.message || "Integration failed");
-    integrationMessage.textContent = json.message;
-    integrationMessage.classList.add("text-emerald-400");
-    alert(t("skillInstalled"));
+    await sleep(400);
+    appendWizardLine(t("wizardStep1"));
+
+    await sleep(450);
+    appendWizardLine(t("wizardStep2Search"));
+
+    await sleep(400);
+    const statusRes = await fetch("/api/v1/integrate/openclaw/status");
+    const statusJson = await statusRes.json();
+
+    if (!statusRes.ok || statusJson.status !== "success") {
+      appendWizardLine(t("wizardPostError").replace("{msg}", statusJson.message || "status request failed"));
+      integrationMessage.textContent = statusJson.message || "";
+      integrationMessage.className = "text-sm mt-2 text-rose-400";
+      return;
+    }
+
+    if (!statusJson.openclawRootExists) {
+      appendWizardLine(t("wizardStep2Error"));
+      integrationMessage.textContent = statusJson.message || "";
+      integrationMessage.className = "text-sm mt-2 text-rose-400";
+      return;
+    }
+
+    await sleep(350);
+    appendWizardLine(t("wizardStep2Found"));
+
+    await sleep(400);
+    appendWizardLine(t("wizardStep3"));
+
+    const postRes = await fetch("/api/v1/integrate/openclaw", { method: "POST" });
+    const postJson = await postRes.json().catch(() => ({}));
+
+    if (!postRes.ok || postJson.status !== "success") {
+      const msg = postJson.message || postRes.statusText || "Integration failed";
+      appendWizardLine(t("wizardPostError").replace("{msg}", msg));
+      integrationMessage.textContent = msg;
+      integrationMessage.className = "text-sm mt-2 text-rose-400";
+      return;
+    }
+
+    await sleep(350);
+    appendWizardLine(t("wizardStep4"));
+    integrationMessage.textContent = postJson.message || "";
+    integrationMessage.className = "text-sm mt-2 text-emerald-400";
+
+    await loadOpenClawStatus();
+    await sleep(400);
   } catch (err) {
-    integrationMessage.textContent = err.message;
-    integrationMessage.classList.add("text-rose-400");
-    alert(err.message);
+    const msg = err instanceof Error ? err.message : String(err);
+    appendWizardLine(t("wizardPostError").replace("{msg}", msg));
+    integrationMessage.textContent = msg;
+    integrationMessage.className = "text-sm mt-2 text-rose-400";
+  } finally {
+    openClawWizardRunning = false;
+    installOpenclawBtn.disabled = false;
+    openclawModalClose.disabled = false;
+  }
+}
+
+installOpenclawBtn.addEventListener("click", () => {
+  runOpenClawInstallWizard();
+});
+
+openclawModalClose.addEventListener("click", () => {
+  if (openClawWizardRunning) return;
+  openclawModal.classList.add("hidden");
+});
+
+openclawModal.addEventListener("click", (event) => {
+  if (event.target === openclawModal && !openClawWizardRunning) {
+    openclawModal.classList.add("hidden");
   }
 });
 
 serverHost.textContent = window.location.hostname || "localhost";
 renderLanguage();
 
-Promise.all([loadCookies(), loadSettings(), loadStats(), loadHistory()]).catch((err) => {
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) return;
+  loadCookies().catch(() => {});
+  loadStats().catch(() => {});
+});
+
+Promise.all([loadCookies(), loadSettings(), loadStats(), loadHistory(), loadOpenClawStatus()]).catch((err) => {
   integrationMessage.textContent = err.message;
   integrationMessage.className = "text-sm mt-2 text-rose-400";
 });

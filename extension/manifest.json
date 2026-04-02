@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "WebClaw Cookie Sync",
+  "version": "1.0",
+  "description": "Extract cookies from active tab and sync to WebClaw Hybrid Gateway.",
+  "permissions": ["cookies", "activeTab"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_title": "WebClaw Cookie Sync",
+    "default_popup": "popup.html"
+  }
+}

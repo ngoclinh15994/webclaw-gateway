@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const os = require("os");
 const fs = require("fs/promises");
+const fsSync = require("fs");
 const { PORT } = require("./config");
 const { runOrchestrator } = require("./orchestrator");
 const { ensureCookiesFile, writeCookies, readCookies } = require("./cookies");
@@ -84,6 +85,19 @@ app.get("/api/v1/stats", (_, res) => {
   try {
     const stats = getAggregateStats();
     return res.json({ status: "success", stats });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: error.message });
+  }
+});
+
+app.get("/api/v1/integrate/openclaw/status", (_, res) => {
+  try {
+    const homeDir = os.homedir();
+    const openclawRoot = path.join(homeDir, ".openclaw");
+    const skillPath = path.join(openclawRoot, "skills", "webclaw_scraper", "SKILL.md");
+    const installed = fsSync.existsSync(skillPath);
+    const openclawRootExists = fsSync.existsSync(openclawRoot);
+    return res.json({ status: "success", installed, openclawRootExists });
   } catch (error) {
     return res.status(500).json({ status: "error", message: error.message });
   }
