@@ -5,6 +5,7 @@ The canonical OpenClaw skill template is:
 
 - `services/gateway/src/templates/openclaw-skill.md`
 
+**Quick start (published package):** `npx webclaw-hybrid-engine-ln` — wait for **Ready on port 8822**.  
 **Official engine repository (clone, README, source review):** [https://github.com/ngoclinh15994/webclaw-gateway](https://github.com/ngoclinh15994/webclaw-gateway)
 
 ---
@@ -19,14 +20,14 @@ The installed OpenClaw `SKILL.md` calls the **WebClaw Hybrid Engine** (100% Node
 
 The agent should read **`data.markdown`** (and may use `data.title`) from the JSON response.
 
-If `curl` cannot reach the engine, tell the user the WebClaw Hybrid Engine is not running. **Security-first:** encourage them to **review the code and README** on the official repo before running any install commands: [https://github.com/ngoclinh15994/webclaw-gateway](https://github.com/ngoclinh15994/webclaw-gateway). After they follow the README to install, run setup, and start the server, they can retry.
+If `curl` cannot reach the engine, use the same onboarding copy as in the skill template: **`npx webclaw-hybrid-engine-ln`**, then wait for **Ready on port 8822** (optional: review source on [GitHub](https://github.com/ngoclinh15994/webclaw-gateway) first).
 
 ---
 
 ## Skill Metadata
 
 - **Name:** `webclaw-hybrid-engine-ln`
-- **Version:** `1.0.0` (see template frontmatter)
+- **Version:** `1.0.2` (see template frontmatter)
 - **Install path:** `~/.openclaw/skills/webclaw_scraper/SKILL.md`
 
 ---
@@ -45,12 +46,10 @@ curl -X POST http://localhost:8822/api/v1/integrate/openclaw
 
 ## Setup Checklist
 
-1. **Get the source:** clone [https://github.com/ngoclinh15994/webclaw-gateway](https://github.com/ngoclinh15994/webclaw-gateway) (`git clone https://github.com/ngoclinh15994/webclaw-gateway.git` then `cd webclaw-gateway`). Read the README and review the code if you want to verify what runs locally.
-2. **From repository root:** `npm install` → `npm run setup` (installs Playwright Chromium) → `npm start`
-   - Or run **`Start_WebClaw.bat`** (Windows) / **`Start_WebClaw.sh`** (macOS/Linux), which chain the same steps.
-3. Confirm health: `http://localhost:8822/health`
-4. Install the skill: dashboard button or `POST /api/v1/integrate/openclaw`
-5. Restart OpenClaw so it reloads skills.
+1. **Run the engine:** either `npx webclaw-hybrid-engine-ln` (wait for **Ready on port 8822**), **or** clone [https://github.com/ngoclinh15994/webclaw-gateway](https://github.com/ngoclinh15994/webclaw-gateway) and from the repo root run `npm install` → `npm run setup` → `npm start`, or **`Start_WebClaw.bat`** / **`Start_WebClaw.sh`**.
+2. Confirm health: `http://localhost:8822/health`
+3. Install the skill: dashboard button or `POST /api/v1/integrate/openclaw`
+4. Restart OpenClaw so it reloads skills.
 
 ---
 

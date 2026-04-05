@@ -1,25 +1,43 @@
 {
   "name": "webclaw-hybrid-engine-ln",
-  "version": "0.1.0",
-  "private": true,
-  "description": "WebClaw Hybrid Engine — zero-Docker Node.js runtime (workspace root).",
+  "version": "1.0.4",
+  "description": "WebClaw Hybrid Engine — privacy-first local bridge for OpenClaw (Crawlee + Playwright).",
   "repository": {
     "type": "git",
     "url": "https://github.com/ngoclinh15994/webclaw-gateway.git"
   },
+  "bin": {
+    "webclaw-hybrid-engine-ln": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "services/gateway/src",
+    "services/gateway/ui",
+    "services/gateway/package.json",
+    "scripts/setup.js"
+  ],
   "workspaces": [
     "services/gateway"
   ],
   "scripts": {
     "setup": "node scripts/setup.js",
     "start": "node services/gateway/src/app.js",
-    "dev": "nodemon services/gateway/src/app.js"
+    "dev": "nodemon services/gateway/src/app.js",
+    "webclaw": "node bin/cli.js"
   },
   "engines": {
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "playwright": "^1.53.2"
+    "@mozilla/readability": "^0.6.0",
+    "better-sqlite3": "^12.8.0",
+    "crawlee": "^3.15.3",
+    "express": "^4.21.2",
+    "jsdom": "^26.1.0",
+    "playwright": "^1.53.2",
+    "tiktoken": "^1.0.22",
+    "turndown": "^7.2.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

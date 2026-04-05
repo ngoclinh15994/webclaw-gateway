@@ -189,6 +189,7 @@ async function start() {
   runMigrations();
   app.listen(PORT, () => {
     console.log(`webclaw-hybrid-engine-ln listening on :${PORT}`);
+    console.log(`Ready on port ${PORT}`);
   });
 }
 
