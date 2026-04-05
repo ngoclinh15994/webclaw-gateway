@@ -133,7 +133,7 @@ async function copyCookiesToClipboard() {
   }
 }
 
-async function syncCookiesToGateway() {
+async function syncCookiesToEngine() {
   try {
     if (!state.domain) {
       throw new Error("No active domain loaded.");
@@ -148,17 +148,17 @@ async function syncCookiesToGateway() {
 
     if (!response.ok) {
       const body = await response.text();
-      throw new Error(`Gateway returned ${response.status}${body ? `: ${body}` : ""}`);
+      throw new Error(`Server returned ${response.status}${body ? `: ${body}` : ""}`);
     }
 
-    setStatus("Successfully synced to Gateway!", "success");
+    setStatus("Successfully synced to WebClaw Hybrid Engine!", "success");
   } catch (error) {
-    setStatus("Error: WebClaw Gateway is not running on port 8822", "error");
+    setStatus("Error: WebClaw Hybrid Engine is not running on port 8822", "error");
   }
 }
 
 copyBtn.addEventListener("click", copyCookiesToClipboard);
-syncBtn.addEventListener("click", syncCookiesToGateway);
+syncBtn.addEventListener("click", syncCookiesToEngine);
 
 loadActiveSiteCookies().catch((error) => {
   domainText.textContent = "Current Site: unavailable";

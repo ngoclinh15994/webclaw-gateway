@@ -1,17 +1,19 @@
-# WebClaw Hybrid Gateway
+# WebClaw Hybrid Engine
+
+**Official repository:** [github.com/ngoclinh15994/webclaw-gateway](https://github.com/ngoclinh15994/webclaw-gateway)
 
 **Save up to 90% on LLM scraping costs with a hybrid stealth pipeline.**  
 [Crawlee](https://crawlee.dev/) **Cheerio** fast path for static HTML, **Playwright** for SPAs and bot-heavy pages—100% Node.js, Windows-friendly.
 
 ---
 
-## Why WebClaw Hybrid Gateway?
+## Why WebClaw Hybrid Engine?
 
 Most scraping stacks force a bad tradeoff:
 - fast but blocked,
 - or robust but expensive and slow.
 
-This project uses a **Smart Gateway architecture** to get both:
+This project uses a **smart hybrid architecture** to get both:
 
 1. **Fast Path (Crawlee Cheerio)**  
    HTTP fetch + Cheerio parsing for static pages (≈30s timeout per request).
@@ -66,7 +68,7 @@ Native Node.js hybrid runtime (no Docker required):
 - `services/gateway/src/settings.js`
   - Reads/writes `data/settings.json`; scrape path checks exclude list before orchestration
 - `services/gateway/src/templates/openclaw-skill.md`
-  - OpenClaw `SKILL.md` template (curl to gateway, `EXCLUDED_BY_USER` fallback rule)
+  - OpenClaw `SKILL.md` template (curl to the local API, `EXCLUDED_BY_USER` fallback rule)
 
 ---
 
@@ -75,9 +77,16 @@ Native Node.js hybrid runtime (no Docker required):
 ### Requirements
 
 - **Node.js 20+** and **npm**
-- Optional: **Git** (to clone the repo)
+- **Git** (recommended) — clone from [github.com/ngoclinh15994/webclaw-gateway](https://github.com/ngoclinh15994/webclaw-gateway)
 
 ### Install and run (all platforms)
+
+Clone the official repo (review the code on GitHub first if you are security-conscious):
+
+```bash
+git clone https://github.com/ngoclinh15994/webclaw-gateway.git
+cd webclaw-gateway
+```
 
 From the **repository root**:
 
@@ -246,7 +255,7 @@ Automatically installs the OpenClaw skill file into the local user profile.
 Behavior:
 - detects `~/.openclaw`
 - creates `~/.openclaw/skills/webclaw_scraper/` if needed
-- writes `SKILL.md` from gateway template
+- writes `SKILL.md` from the OpenClaw skill template
 
 Success:
 
@@ -314,15 +323,16 @@ This is optimized for agents and workflows where token waste directly hits your 
 This repository ships a ready-to-use OpenClaw **skill** (Markdown `SKILL.md`, installed under `~/.openclaw/skills/webclaw_scraper/`):
 
 - Template source: `services/gateway/src/templates/openclaw-skill.md`
-- Skill name: `stealth_web_scraper`
+- Skill name: `webclaw-hybrid-engine-ln`
 - Auto-install endpoint: `POST /api/v1/integrate/openclaw`
-- The skill uses `curl` against `http://localhost:8822/api/v1/scrape` and documents fallback when the gateway returns `EXCLUDED_BY_USER`.
+- The skill uses `curl` against `http://localhost:8822/api/v1/scrape` and documents fallback when the API returns `EXCLUDED_BY_USER`.
 
 Quick flow:
 
-1. Start gateway (`Start_WebClaw.bat` or `Start_WebClaw.sh`)
-2. Click `⚡ Install OpenClaw Skill` in dashboard (or call API)
-3. Restart OpenClaw so it reloads skills
+1. Clone and run the engine from the [official repository](https://github.com/ngoclinh15994/webclaw-gateway) (see **Quick Start** above).
+2. Start WebClaw Hybrid Engine (`Start_WebClaw.bat` or `Start_WebClaw.sh`)
+3. Click `⚡ Install OpenClaw Skill` in dashboard (or call API)
+4. Restart OpenClaw so it reloads skills
 
 Detailed notes:
 - `openclaw-skill/README.md`
@@ -364,4 +374,4 @@ Detailed notes:
 - Crawlee: [Apify Crawlee](https://crawlee.dev/)
 - Markdown stack: Mozilla Readability, Turndown, tiktoken
 
-This gateway is a **Node.js** orchestration layer around Crawlee and your local Playwright install.
+WebClaw Hybrid Engine is a **Node.js** orchestration layer around Crawlee and your local Playwright install.

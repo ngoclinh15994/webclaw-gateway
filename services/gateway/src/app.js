@@ -188,7 +188,7 @@ async function start() {
   await ensureSettingsFile();
   runMigrations();
   app.listen(PORT, () => {
-    console.log(`webclaw-gateway listening on :${PORT}`);
+    console.log(`webclaw-hybrid-engine-ln listening on :${PORT}`);
   });
 }
 

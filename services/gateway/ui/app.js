@@ -39,7 +39,7 @@ let cookiesState = [];
 
 const I18N = {
   en: {
-    titleMain: "WebClaw Hybrid Gateway",
+    titleMain: "WebClaw Hybrid Engine",
     subtitleKpi: "Primary KPI: token reduction percentage (%)",
     installSkill: "⚡ Install OpenClaw Skill",
     serverStatus: "Server Status",
@@ -53,7 +53,7 @@ const I18N = {
     installSkillInstalled: "✅ OpenClaw Skill Installed",
     wizardTitle: "OpenClaw Skill Installation",
     wizardClose: "Close",
-    wizardStep1: "[⏳] Initializing WebClaw Gateway integration...",
+    wizardStep1: "[⏳] Initializing WebClaw Hybrid Engine integration...",
     wizardStep2Search: "[⏳] Searching for OpenClaw installation directory (~/.openclaw)...",
     wizardStep2Found: "[✅] OpenClaw directory found.",
     wizardStep2Error: "[❌] Error: OpenClaw directory not found on this machine.",
@@ -84,7 +84,7 @@ const I18N = {
     skillInstalled: "WebClaw Skill successfully installed into OpenClaw!"
   },
   vi: {
-    titleMain: "WebClaw Hybrid Gateway",
+    titleMain: "WebClaw Hybrid Engine",
     subtitleKpi: "KPI chính: phần trăm giảm token (%)",
     installSkill: "⚡ Cài đặt Skill OpenClaw",
     serverStatus: "Trạng thái Server",
@@ -97,7 +97,7 @@ const I18N = {
     installSkillInstalled: "✅ Đã cài Skill OpenClaw",
     wizardTitle: "Cài đặt Skill OpenClaw",
     wizardClose: "Đóng",
-    wizardStep1: "[⏳] Đang khởi tạo tích hợp WebClaw Gateway...",
+    wizardStep1: "[⏳] Đang khởi tạo tích hợp WebClaw Hybrid Engine...",
     wizardStep2Search: "[⏳] Đang tìm thư mục OpenClaw (~/.openclaw)...",
     wizardStep2Found: "[✅] Đã tìm thấy thư mục OpenClaw.",
     wizardStep2Error: "[❌] Lỗi: Không tìm thấy thư mục OpenClaw trên máy này.",
@@ -258,7 +258,7 @@ function stripLeadingDot(domain) {
 }
 
 /**
- * Gateway stores either manual rows { domain, cookie_string } or Chrome API objects
+ * Server stores either manual rows { domain, cookie_string } or Chrome API objects
  * { name, value, domain, path, ... }. The UI table only shows domain + cookie_string,
  * so we normalize Chrome entries for display and for round-trip save.
  */

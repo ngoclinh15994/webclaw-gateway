@@ -13,6 +13,6 @@ npm install
 echo "[2/3] npm run setup (Playwright Chromium + webclaw binary)..."
 npm run setup
 
-echo "[3/3] Starting WebClaw Hybrid Gateway..."
+echo "[3/3] Starting WebClaw Hybrid Engine..."
 echo "Open http://localhost:8822 when ready."
 exec npm start

@@ -1,7 +1,7 @@
 {
   "name": "webclaw-gateway",
   "version": "0.1.0",
-  "description": "A smart, hybrid local gateway for stealth web scraping and LLM token reduction.",
+  "description": "WebClaw Hybrid Engine service — stealth web scraping and LLM token reduction (Crawlee + Playwright).",
   "main": "src/app.js",
   "type": "commonjs",
   "scripts": {

@@ -1,8 +1,12 @@
 {
-  "name": "webclaw-hybrid-gateway",
+  "name": "webclaw-hybrid-engine-ln",
   "version": "0.1.0",
   "private": true,
-  "description": "WebClaw Hybrid Gateway — zero-Docker Node.js runtime (workspace root).",
+  "description": "WebClaw Hybrid Engine — zero-Docker Node.js runtime (workspace root).",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ngoclinh15994/webclaw-gateway.git"
+  },
   "workspaces": [
     "services/gateway"
   ],
