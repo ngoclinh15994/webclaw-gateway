@@ -5,7 +5,7 @@ const fs = require("fs/promises");
 const fsSync = require("fs");
 const { PORT } = require("./config");
 const { runOrchestrator } = require("./orchestrator");
-const { ensureCookiesFile, writeCookies, readCookies } = require("./cookies");
+const { ensureCookiesFile, writeCookies, readCookies, normalizeCookiesForStorage } = require("./cookies");
 const { ensureSettingsFile, readSettings, writeSettings, isExcludedUrl } = require("./settings");
 const {
   runMigrations,
@@ -25,7 +25,7 @@ app.get("/health", (_, res) => {
 
 app.post("/api/v1/scrape", async (req, res) => {
   try {
-    const { url, mode = "auto" } = req.body || {};
+    const { url, mode = "auto", extract_mode = "article" } = req.body || {};
     if (!url) {
       return res.status(400).json({ status: "error", message: "url is required" });
     }
@@ -41,7 +41,10 @@ app.post("/api/v1/scrape", async (req, res) => {
     if (!["auto", "fast_only", "playwright_only"].includes(mode)) {
       return res.status(400).json({ status: "error", message: "invalid mode" });
     }
-    const result = await runOrchestrator({ url, mode });
+    if (!["article", "ecommerce"].includes(extract_mode)) {
+      return res.status(400).json({ status: "error", message: "invalid extract_mode" });
+    }
+    const result = await runOrchestrator({ url, mode, extract_mode });
     if (result.status === "success" && result.metrics) {
       insertScrapeHistory({
         url,
@@ -170,8 +173,9 @@ app.post("/api/v1/cookies", async (req, res) => {
     if (!Array.isArray(cookies)) {
       return res.status(400).json({ status: "error", message: "cookies must be an array" });
     }
-    await writeCookies(cookies);
-    return res.json({ status: "success", count: cookies.length });
+    const normalized = normalizeCookiesForStorage(cookies);
+    await writeCookies(normalized);
+    return res.json({ status: "success", count: normalized.length });
   } catch (error) {
     return res.status(500).json({ status: "error", message: error.message });
   }

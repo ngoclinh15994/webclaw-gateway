@@ -1,1 +1,291 @@
-[]
+[
+  {
+    "name": "ab180ClientId",
+    "value": "b5280303-e7fb-4305-be5c-52b8c95bf998",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "g_state",
+    "value": "{\"i_l\":0,\"i_ll\":1772366050641,\"i_b\":\"mN1Gfyi74zcmymVSQxwrSUjlliXsF90JyQAGUGkcbxo\",\"i_e\":{\"enable_itp_optimization\":0}}",
+    "domain": "www.chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "g_state",
+    "value": "{\"i_l\":0,\"i_ll\":1772366078607,\"i_b\":\"QhntysfcpdErtE7F3+vYEzVAhT7Yy+PsyHx9lskqpMs\",\"i_e\":{\"enable_itp_optimization\":0}}",
+    "domain": "id.chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "ipqsd",
+    "value": "555114235005264640",
+    "domain": "id.chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "device_id_1772366082",
+    "value": "f0Qbb5vYwJ-1772366082",
+    "domain": "id.chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "ct-idfp",
+    "value": "c7b74a40-4403-595a-9cce-5b71ca932c96",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "ct-idfp",
+    "value": "c7b74a40-4403-595a-9cce-5b71ca932c96",
+    "domain": "id.chotot.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "name": "ct-idfp-vendor",
+    "value": "ipqs",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "ct-idfp-vendor",
+    "value": "ipqs",
+    "domain": "id.chotot.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": false
+  },
+  {
+    "name": "oauth2_authentication_session_insecure",
+    "value": "MTc3MjM2NjEwOXxEdi1CQkFFQ180SUFBUkFCRUFBQVFmLUNBQUVHYzNSeWFXNW5EQVVBQTNOcFpBWnpkSEpwYm1jTUpnQWtOV1E1TUdKaU1tUXROMlk0WXkwMFlURm1MV0V5WWpndFl6bGpNakZpTlRnMk1qVXh88GEgG5QkDYo-yMAzUSzs99b5E0xMNbjTVruUcBePQjQ=",
+    "domain": "id.chotot.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "userId",
+    "value": "MjIyNjM2MTA=",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "u.r",
+    "value": "1",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "u.lb",
+    "value": "1",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "msess",
+    "value": "undefined",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "loginMethod",
+    "value": "phone",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "u.ac",
+    "value": "22263610",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "isOnboardSimilarAd",
+    "value": "true",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "ct-make-offer-tooltip_22263610",
+    "value": "true",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "showVideoMobileOnboarding",
+    "value": "true",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "showShopAccountTooltip",
+    "value": "false",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "showInsertAdOnboarding",
+    "value": "true",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "shouldShowToolTipNewLabel",
+    "value": "false",
+    "domain": "www.chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "rg",
+    "value": "{%22rg%22:%2212000%22%2C%22area%22:%2212086%22%2C%22ward%22:%22264%22}",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "premiumPopupTypePrivateDashboard",
+    "value": "insert",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "uid",
+    "value": "919734",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "sawNonPosOnboarding",
+    "value": "true",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "sawAdsDashboardOnboarding",
+    "value": "true",
+    "domain": "chotot.com",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "airbridge_migration_metadata__chotot",
+    "value": "%7B%22version%22%3A%221.11.5%22%7D",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "chatPrivateToken",
+    "value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL2lkZW50aXR5dG9vbGtpdC5nb29nbGVhcGlzLmNvbS9nb29nbGUuaWRlbnRpdHkuaWRlbnRpdHl0b29sa2l0LnYxLklkZW50aXR5VG9vbGtpdCIsImlhdCI6MTc3NDI4MTAyNywiZXhwIjoxNzc0Mjg0NjI3LCJpc3MiOiJmaXJlYmFzZS1hZG1pbnNkay1uYW92ckBnY3JzLWNvcmUtY2hhdC1wcm9kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwic3ViIjoiZmlyZWJhc2UtYWRtaW5zZGstbmFvdnJAZ2Nycy1jb3JlLWNoYXQtcHJvZC5pYW0uZ3NlcnZpY2VhY2NvdW50LmNvbSIsInVpZCI6IjE6MjIyNjM2MTAiLCJjbGFpbXMiOnsicGlkIjoiZmJiN2RlOTktOWE1OS00NGY2LWI4NGEtYjM4Y2Q4N2JmYWYzIiwiZGlzcGxheV9uYW1lIjpudWxsLCJhdmF0YXIiOm51bGwsInN0YXR1cyI6InBlbmRpbmcifX0.D5GQmPrhyaE-SeJvrnJHvtmURxwKGfWbYa8HUafH1hzXHPTei-Wgw0ZgZC-6lf6_dM3_X8Q094Ap8xkAtAqQzQJnFRk5XfJUxNGsUbyfkssBuIFwU8otWQaBmB4Hd_3nU1G8DjcWaEJpdDL3U2qmkyvNui_LGjinYCg25xX9yYwSqxNAEPzadNs54B9h3SpTQqacWJ2zikRsWrDtgyNJjM1J8SunB-Fb3yPgBdriUhTDJG8pwUqN-th7hrDrd4x74JrDJ_4mAU4dLxj7MIHyryc6OxeaTVT1FgQjJSIzAY7FgdlAtawWh3L4_jOV0q032_5EbjOHJFa7TTm10Ji9dg",
+    "domain": "chat.chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "location",
+    "value": "toan-quoc",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "regionParams",
+    "value": "{%22regionUrl%22:%22toan-quoc%22%2C%22regionValue%22:0%2C%22regionName%22:%22To%C3%A0n%20qu%E1%BB%91c%22%2C%22subRegionValue%22:0%2C%22subRegionUrl%22:%22%22%2C%22subRegionName%22:%22T%E1%BA%A5t%20c%E1%BA%A3%22%2C%22empty_region%22:false}",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "_cfuvid",
+    "value": "p6UF.4gXIRz3UznMM8u3swFCOS1YeN.jFInwuaRobYE-1775233580.831402-1.0.1.1-9b.59M0MIJ1fBcncc92DJ0fyra_dW4ccA0PGpTnXFWo",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": true,
+    "httpOnly": true
+  },
+  {
+    "name": "airbridge_session__chotot",
+    "value": "%7B%22id%22%3A%22f8a96587-f81b-4e5e-b79e-c99235f60106%22%2C%22timeout%22%3A1800000%2C%22start%22%3A1775233582853%2C%22end%22%3A1775233582853%7D",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "idToken",
+    "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6InB1YmxpYzpoeWRyYS5vcGVuaWQuaWQtdG9rZW4iLCJ0eXAiOiJKV1QifQ.eyJhdF9oYXNoIjoiTW1zMlJKNzFObDJEMHdFdTRnUndPdyIsImF1ZCI6WyJjdF93ZWJfY2xpZW50Il0sImF1dGhfdGltZSI6MTc3MjM2NjEwOSwiZXhwIjoxNzgzMDA5NTgyLCJpYXQiOjE3NzUyMzM1ODIsImlzcyI6Imh0dHA6Ly9jdC1jb3JlLWlkLnVzZXIuc3ZjLmdrZTEuY3QucHJvZC8iLCJqdGkiOiIzMjhhMzg2OS0yODRiLTQ4Y2EtOTYyOS0yNjkwMWVmMTA3MDQiLCJub25jZSI6Inh4eHNnY21tdXBoYWF4aGlhbGp4d3h5aSIsInJhdCI6MTc3NDI3NTIxMCwic2lkIjoiNWQ5MGJiMmQtN2Y4Yy00YTFmLWEyYjgtYzljMjFiNTg2MjUxIiwic3ViIjoiMjIyNjM2MTAifQ.ATQae4e3aHM4oMwzsZaUgUelrlNXlbtwGx_60Fao3CVstffoIT0L9EEJnSZmDkXKj66QufzupVw42LT-mbogtxvRF08dgYjE2c5X_bIeMssieOf4dWbSV7hbQ-Ds0_9lDdnGbdQy4c-SaRnvufDWrJsOHDN0ip4Z39JEmDUrD4XIPbWtdy_dMYNyO9YmNxv4f7dZeD0ULIPXr1IIoqZhmjsGZVA0caW7nL7S0teVlttBG06ijdaAOTK5cONFpdADVhFG2e3Aei5SzgsrLsc-8ti_7VwRhxU2A6Squ15W_7zpCv29tdKKhSW9S7aXtZt9sY9dfnTFgQOZ8m6nTkTPode4l0sGvzD0aJHB4sdPR0BfVtnOdiUr0KdOsIQw8KEV3B5VR-QYZU6f6jjlFcGMR5JP18mmmp5tcZsPbBNJ7WddMc-P7efgC9BP9Je3thOoNyN1X_fyr-L9GjoL6swJV2EivWxQjc5bgqBlYxrkXFxAqHPsgImKt1qMXsdxWXDTGH2zwRkuMYlgt1Qp5E7NAYeGIF-yS3wHOJTC3Zl-TqXmi08S1_C41PfpkmuCIqydR-_gSG__kjann_ZNwekGucsq91RsudIVgLZcEqnu2Ek4ybyOMSQ5idFXekdTIXD3cqUyZQNXLV5YVS3QRTioIrIru-4CCgT3qgOdgsGOQnM",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "privateToken",
+    "value": "eyJhbGciOiJSUzI1NiIsImtpZCI6InB1YmxpYzpoeWRyYS5qd3QuYWNjZXNzLXRva2VuIiwidHlwIjoiSldUIn0.eyJhdWQiOltdLCJjbGllbnRfaWQiOiJjdF93ZWJfY2xpZW50IiwiZXhwIjoxNzc1MzE5OTgzLCJleHQiOnt9LCJpYXQiOjE3NzUyMzM1ODIsImlzcyI6Imh0dHA6Ly9jdC1jb3JlLWlkLnVzZXIuc3ZjLmdrZTEuY3QucHJvZC8iLCJqdGkiOiJmY2QxYTNkZC01YTFjLTRiZjUtOTdjZi01ZDQxMjVkZTkxZTgiLCJuYmYiOjE3NzUyMzM1ODIsInNjcCI6WyJvZmZsaW5lIiwib3BlbmlkIiwib2ZmbGluZV9hY2Nlc3MiXSwic3ViIjoiMjIyNjM2MTAifQ.rYm6JQfJRAj0jMs579vSDYv178EwX9twNQ30_FQdsOAgB5FJ73OpzryI-oL-OF9UpaH0R3ssqJLWQ2orpJEF4rGKtL38JpfqZaAnas8uLQ04O5pzicSF_zHgHBTr-tNxgVvIW8CBa8udgQLpHveFx5TS1Y5aftEbbifyJVBCAK-mYWtPKf-LPwP1vJ5ZjHhweo8XHNLrv_5DztgjQEBthx0DZmo5y-Z0Wcaw5pFN63M-cxZu6lEQEOIzR3-1URkDWy5EpqAApxYxSUra_W-nErW7wWn3glwnLUfcL8Fd4ZQlVkdZk68Ki6XKonGsFH-dTBIpBbTGcRkcFfCUYSybo5XyO-XyUtxaoxW6nQnGFIj5W62ZNzwM7deobVhsawpYrbLnfI-lT7UO7EgcF8S8iwvgXVAAoeu2cXcvohJhS7yoeqgHXZByYaSlBOMQPaTayiqR47fE3FuzSc8p8yeFXf-I56s_q_beb1heKHV46DFT1CJXDkTZeyaNMwN77s8dPixBVvb-5pSGB3Jf0ORzcz5KW6ZEKn5ZiPelW-mabm2UdsOgrpYp9F5-juhkvwG4NToMBOFuy3KCbKwlpPjtYRz8Nvvms5XXzAtv_iqDQ38EPKcJZDYDHIbEm4wHJ-EmKe67fG08oJTcO2boujoCRkF-HXznxNp0UgNkbnQh3_8",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  },
+  {
+    "name": "refreshToken",
+    "value": "O-npHMZMSTsYw7cg1MqyX_cUteMWVdBoN5ZUI0k70rk.k68s8fb4QhE7Njebwi5IMBMxGIQfa62ECx_lssFqXFQ",
+    "domain": "chotot.com",
+    "path": "/",
+    "secure": false,
+    "httpOnly": false
+  }
+]

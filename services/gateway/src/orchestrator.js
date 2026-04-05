@@ -142,7 +142,27 @@ function readPath(obj, path) {
   return path.split(".").reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
 }
 
-async function runOrchestrator({ url, mode = "auto" }) {
+async function runOrchestrator({ url, mode = "auto", extract_mode = "article" }) {
+  const extractMode = extract_mode === "ecommerce" ? "ecommerce" : "article";
+
+  if (extractMode === "ecommerce") {
+    if (mode === "fast_only") {
+      throw new Error(
+        "extract_mode 'ecommerce' cannot be used with mode 'fast_only'. Use 'auto' or 'playwright_only'."
+      );
+    }
+    const renderedHtml = await scrapeWithPlaywright(url, { extractMode: "ecommerce" });
+    const purified = purifyHtmlToMarkdown(renderedHtml, url, { extractMode: "ecommerce" });
+    return {
+      status: "success",
+      extract_mode: extractMode,
+      engine_used: "playwright_fallback",
+      engine_label: "Playwright Stealth (e-commerce)",
+      data: purified,
+      metrics: buildMetrics(renderedHtml, purified.markdown)
+    };
+  }
+
   const coreResult = await runWebclawCli(url);
   const coreContent = pickCoreContent(coreResult.payload);
 
@@ -165,6 +185,7 @@ async function runOrchestrator({ url, mode = "auto" }) {
     const source = coreContent.rawHtml || coreContent.markdown;
     return {
       status: "success",
+      extract_mode: extractMode,
       engine_used: "webclaw_rust",
       engine_label: "Rust Fast Path",
       data: {
@@ -175,11 +196,12 @@ async function runOrchestrator({ url, mode = "auto" }) {
     };
   }
 
-  const renderedHtml = await scrapeWithPlaywright(url);
-  const purified = purifyHtmlToMarkdown(renderedHtml, url);
+  const renderedHtml = await scrapeWithPlaywright(url, { extractMode: "article" });
+  const purified = purifyHtmlToMarkdown(renderedHtml, url, { extractMode: "article" });
 
   return {
     status: "success",
+    extract_mode: extractMode,
     engine_used: "playwright_fallback",
     engine_label: "Playwright Stealth",
     data: purified,
