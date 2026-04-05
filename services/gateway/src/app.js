@@ -1,3 +1,5 @@
+process.env.CRAWLEE_LOG_LEVEL = process.env.CRAWLEE_LOG_LEVEL || "WARNING";
+
 const express = require("express");
 const path = require("path");
 const os = require("os");

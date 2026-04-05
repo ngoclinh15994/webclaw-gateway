@@ -46,6 +46,7 @@ const I18N = {
     host: "Host",
     port: "Port",
     ready: "Ready",
+    engineBadge: "Engine: Crawlee Hybrid (Cheerio + Playwright)",
     totalRequests: "Total Requests",
     overallReductionKpi: "Overall Reduction",
     tokensSavedSubLine: "{n} total tokens saved",
@@ -185,6 +186,8 @@ function renderLanguage() {
   document.getElementById("label-host").textContent = t("host");
   document.getElementById("label-port").textContent = t("port");
   serverStatus.textContent = t("ready");
+  const engineBadgeEl = document.getElementById("engine-badge");
+  if (engineBadgeEl) engineBadgeEl.textContent = t("engineBadge");
   document.getElementById("label-total-requests").textContent = t("totalRequests");
   document.getElementById("label-overall-reduction").textContent = t("overallReductionKpi");
   document.getElementById("exclude-title").textContent = t("excludeTitle");

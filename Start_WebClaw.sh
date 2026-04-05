@@ -1,24 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
+cd "$(dirname "$0")"
 
-echo "[1/4] Checking Docker daemon..."
-if ! docker info >/dev/null 2>&1; then
-  echo "Docker daemon is not running. Please start Docker Desktop / Docker Engine."
+if ! command -v npm >/dev/null 2>&1; then
+  echo "npm not found. Install Node.js 20+ from https://nodejs.org/"
   exit 1
 fi
 
-echo "[2/4] Starting WebClaw Hybrid Gateway..."
-docker compose up -d --build --remove-orphans
+echo "[1/3] npm install..."
+npm install
 
-echo "[3/4] Waiting for gateway health..."
-for i in {1..30}; do
-  if curl -fsS "http://localhost:8822/health" >/dev/null 2>&1; then
-    echo "[4/4] Gateway is healthy."
-    echo "Open: http://localhost:8822"
-    exit 0
-  fi
-  sleep 2
-done
+echo "[2/3] npm run setup (Playwright Chromium + webclaw binary)..."
+npm run setup
 
-echo "Gateway did not become healthy in time."
-exit 1
+echo "[3/3] Starting WebClaw Hybrid Gateway..."
+echo "Open http://localhost:8822 when ready."
+exec npm start

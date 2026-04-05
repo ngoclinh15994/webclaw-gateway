@@ -3,8 +3,6 @@ const fs = require("fs");
 
 const PORT = Number(process.env.PORT || 8822);
 const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 20000);
-const WEBCLAW_CLI_PATH = process.env.WEBCLAW_CLI_PATH || "webclaw";
-const WEBCLAW_CLI_TIMEOUT_MS = Number(process.env.WEBCLAW_CLI_TIMEOUT_MS || 45000);
 
 function resolveCookiesPath() {
   const candidatePaths = [
@@ -39,8 +37,6 @@ function resolveDbPath() {
 module.exports = {
   PORT,
   REQUEST_TIMEOUT_MS,
-  WEBCLAW_CLI_PATH,
-  WEBCLAW_CLI_TIMEOUT_MS,
   resolveCookiesPath,
   resolveDbPath
 };

@@ -1,0 +1,23 @@
+{
+  "name": "webclaw-hybrid-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "description": "WebClaw Hybrid Gateway — zero-Docker Node.js runtime (workspace root).",
+  "workspaces": [
+    "services/gateway"
+  ],
+  "scripts": {
+    "setup": "node scripts/setup.js",
+    "start": "node services/gateway/src/app.js",
+    "dev": "nodemon services/gateway/src/app.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "playwright": "^1.53.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

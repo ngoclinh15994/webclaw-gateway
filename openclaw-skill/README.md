@@ -1,7 +1,7 @@
 # OpenClaw Skill (Auto-Install)
 
-This folder is now documentation-only.  
-The real OpenClaw skill template lives in:
+This folder is **documentation-only**.  
+The canonical OpenClaw skill template is:
 
 - `services/gateway/src/templates/openclaw-skill.md`
 
@@ -9,33 +9,31 @@ The real OpenClaw skill template lives in:
 
 ## What this skill does
 
-The installed OpenClaw `SKILL.md` uses:
+The installed OpenClaw `SKILL.md` calls the **WebClaw Hybrid Gateway** (100% Node.js, **Crawlee** + Playwright):
 
 - `POST http://localhost:8822/api/v1/scrape`
-- payload: `{ "url": "<target>", "mode": "auto" }`
+- Typical payload: `{ "url": "<target>", "mode": "auto", "extract_mode": "article" }`
+  - Use **`extract_mode": "ecommerce"`** for product/listing pages (prices, reviews, specs).
 
-Then it extracts and uses only `data.markdown` in agent context.
+The agent should read **`data.markdown`** (and may use `data.title`) from the JSON response.
 
-If the gateway is unavailable, it returns:
-
-- `"Scraper Gateway is offline"`
+If `curl` cannot reach the gateway, tell the user the gateway is not running (e.g. run `npm start` from the repo root after `npm install` and `npm run setup`).
 
 ---
 
 ## Skill Metadata
 
 - **Name:** `stealth_web_scraper`
-- **Version:** `1.0.0`
+- **Version:** `1.0.0` (see template frontmatter)
 - **Install path:** `~/.openclaw/skills/webclaw_scraper/SKILL.md`
 
 ---
 
 ## Installation (Automated)
 
-Use dashboard button:
-- `⚡ Install OpenClaw Skill`
+**Dashboard:** button **Install OpenClaw Skill** (wording may vary by language).
 
-Or call API directly:
+**API:**
 
 ```bash
 curl -X POST http://localhost:8822/api/v1/integrate/openclaw
@@ -45,17 +43,16 @@ curl -X POST http://localhost:8822/api/v1/integrate/openclaw
 
 ## Setup Checklist
 
-1. Start the gateway:
-   - Windows: `Start_WebClaw.bat`
-   - macOS/Linux: `./Start_WebClaw.sh`
+1. **From repository root:** `npm install` → `npm run setup` (installs Playwright Chromium) → `npm start`
+   - Or run **`Start_WebClaw.bat`** (Windows) / **`Start_WebClaw.sh`** (macOS/Linux), which chain the same steps.
 2. Confirm health: `http://localhost:8822/health`
-3. Click `⚡ Install OpenClaw Skill` (or call integration API).
+3. Install the skill: dashboard button or `POST /api/v1/integrate/openclaw`
+4. Restart OpenClaw so it reloads skills.
 
 ---
 
 ## Notes
 
-- The tool intentionally forces `mode: "auto"` so the gateway can decide:
-  - Rust fast path for cheap/static pages
-  - Playwright stealth fallback for SPA/anti-bot pages
-- This gives OpenClaw a single reliable web-reading tool with token-efficient markdown output.
+- With **`mode": "auto"`**, the gateway uses **Crawlee Cheerio** first, then **Crawlee Playwright** when HTML looks like an SPA shell, is too small, or looks blocked—plus optional **WebSocket extension** fallback if `WEBCLAW_EXTENSION_WS` is configured and Playwright fails.
+- **`mode": "fast_only"`** = Cheerio only (fails on heavy SPAs). **`playwright_only"`** = browser path first (then extension WS if configured).
+- Responses still include **`metrics`** (token KPIs) for dashboards; OpenClaw usage focuses on **`data.markdown`**.

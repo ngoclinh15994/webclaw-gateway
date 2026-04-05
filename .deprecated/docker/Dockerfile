@@ -1,3 +1,4 @@
+# Deprecated — multi-stage image kept for reference only.
 FROM ghcr.io/0xmassi/webclaw:latest AS webclaw-bin
 
 FROM mcr.microsoft.com/playwright:v1.58.2-noble

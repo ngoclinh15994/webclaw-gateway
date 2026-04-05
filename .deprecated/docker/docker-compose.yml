@@ -1,11 +1,12 @@
+# Deprecated — run from repository root if you still need Docker.
 services:
   webclaw-gateway:
     build:
-      context: ./services/gateway
+      context: ../../services/gateway
     container_name: webclaw-gateway
     environment:
       - PORT=8822
     ports:
       - "8822:8822"
     volumes:
-      - ./data:/app/data
+      - ../../data:/app/data

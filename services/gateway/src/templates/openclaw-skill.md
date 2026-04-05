@@ -1,11 +1,11 @@
 ---
 name: stealth_web_scraper
-description: Use this skill to read, scrape, or extract content from ANY website. It automatically bypasses anti-bot protections (like Cloudflare) and returns highly compressed Markdown. ALWAYS use this instead of default browser tools for reading web pages.
+description: Use this skill to read, scrape, or extract content from ANY website via the local WebClaw Hybrid Gateway (Crawlee Cheerio + Playwright). It returns token-efficient Markdown. ALWAYS use this instead of default browser tools for reading web pages when the gateway is available.
 version: 1.0.0
 ---
 
 # Stealth Web Scraper
-You are equipped with a local WebClaw Hybrid Gateway that can bypass anti-bot protections and extract clean Markdown from any URL.
+You are equipped with a local **WebClaw Hybrid Gateway**. It uses **Crawlee** (Cheerio fast fetch, then Playwright when the page is dynamic or protected) and returns clean Markdown. Ensure the gateway is running (`npm start` on the user’s machine, port **8822**).
 
 ## Extract modes (`extract_mode`)
 
@@ -30,7 +30,7 @@ If the user asks for prices, SKU, availability, ratings, or review text from a s
 When the user asks you to read a webpage, extract data from a URL, or summarize a site, you MUST follow these steps:
 1. Use your built-in terminal/shell tool to send a POST request to the local WebClaw Hybrid Gateway using `curl`.
 2. Choose `extract_mode`: use `"ecommerce"` for shopping/product/review extraction; otherwise `"article"` or omit it (defaults to article).
-3. Execute the `curl` command with `<TARGET_URL>` replaced by the requested URL (include `"mode": "auto"` unless the user needs Playwright-only: `"playwright_only"`).
+3. Execute the `curl` command with `<TARGET_URL>` replaced by the requested URL. Prefer `"mode": "auto"` so the gateway can try Cheerio then Playwright. Use `"playwright_only"` only if the user explicitly needs the browser path first.
 4. Parse the JSON output returned by the command.
 5. Extract the content inside the `data.markdown` field.
 6. If the `curl` command fails or returns an error, inform the user: "Failed to connect to the local WebClaw Hybrid Gateway. Please ensure it is running."

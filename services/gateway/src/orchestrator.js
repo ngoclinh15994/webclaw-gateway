@@ -1,211 +1,207 @@
-const { execFile } = require("child_process");
-const { promisify } = require("util");
-const { scrapeWithPlaywright } = require("./playwrightFallback");
+const { CheerioCrawler, PlaywrightCrawler, Configuration } = require("crawlee");
 const { purifyHtmlToMarkdown } = require("./markdown");
 const { buildMetrics } = require("./tokenMetrics");
-const { WEBCLAW_CLI_PATH, WEBCLAW_CLI_TIMEOUT_MS } = require("./config");
-
-const execFileAsync = promisify(execFile);
+const { readCookies, filterCookiesForUrl, sanitizeCookiesForPlaywright } = require("./cookies");
+const { fetchHtmlViaExtensionSocket } = require("./extensionFallback");
 
 const BLOCK_MARKERS = ["cloudflare", "captcha", "access denied"];
-const SPA_MARKERS = ['id="root"', 'id="app"', "__next", "type=\"module\""];
+const SPA_MARKERS = ['id="root"', 'id="app"', "__next", 'type="module"'];
+
+const REQUEST_TIMEOUT_SECS = 30;
+const MIN_BODY_CHARS = 600;
+
+function ephemeralConfiguration() {
+  return new Configuration({ persistStorage: false });
+}
+
+function delay(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
 function hasBlockMarkers(text) {
   const lowered = String(text || "").toLowerCase();
-  return BLOCK_MARKERS.some((marker) => lowered.includes(marker));
+  return BLOCK_MARKERS.some((m) => lowered.includes(m));
 }
 
 function looksLikeSpaShell(html) {
   const lowered = String(html || "").toLowerCase();
-  return SPA_MARKERS.some((marker) => lowered.includes(marker));
+  return SPA_MARKERS.some((m) => lowered.includes(m));
 }
 
-function shouldFallback(coreResult, coreContent, mode) {
-  if (mode === "fast_only") return false;
-  if (mode === "playwright_only") return true;
+function bodyHtmlLengthApprox(html) {
+  const m = String(html || "").match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  return m ? m[1].length : String(html || "").length;
+}
 
-  if (!coreResult.ok) return true;
-  if ([401, 403, 429].includes(coreResult.status)) return true;
-
-  const rawLength = coreContent.rawHtml.trim().length;
-  const cleanedLength = coreContent.markdown.trim().length;
-  if (rawLength > 0 && cleanedLength / rawLength < 0.1) return true;
-
-  if (hasBlockMarkers(coreContent.rawHtml) || hasBlockMarkers(coreContent.markdown)) {
-    return true;
-  }
-
-  if (!coreContent.markdown.trim()) {
-    return true;
-  }
-
+function shouldFallbackCheerioHtml(html, extractMode) {
+  if (!html || html.length < 200) return true;
+  if (hasBlockMarkers(html)) return true;
+  const bl = bodyHtmlLengthApprox(html);
+  if (bl < MIN_BODY_CHARS) return true;
+  if (extractMode === "article" && looksLikeSpaShell(html)) return true;
   return false;
 }
 
-async function runWebclawCli(url) {
+async function loadPlaywrightCookies(targetUrl) {
+  const rows = await readCookies();
+  let host = "";
   try {
-    const { stdout, stderr } = await execFileAsync(
-      WEBCLAW_CLI_PATH,
-      [url, "-f", "json", "--metadata"],
-      {
-        timeout: WEBCLAW_CLI_TIMEOUT_MS,
-        maxBuffer: 10 * 1024 * 1024
+    host = new URL(targetUrl).hostname;
+  } catch {
+    /* ignore */
+  }
+  return sanitizeCookiesForPlaywright(filterCookiesForUrl(rows, targetUrl), host);
+}
+
+async function cheerioFetchHtml(url) {
+  const state = { html: null, status: 0, err: null };
+  const crawler = new CheerioCrawler(
+    {
+      maxRequestsPerCrawl: 1,
+      maxConcurrency: 1,
+      maxRequestRetries: 1,
+      requestHandlerTimeoutSecs: REQUEST_TIMEOUT_SECS,
+      navigationTimeoutSecs: REQUEST_TIMEOUT_SECS,
+      async requestHandler({ $, response }) {
+        const sc = response.statusCode;
+        state.status = sc;
+        if (sc >= 400) {
+          throw new Error(`HTTP ${sc}`);
+        }
+        state.html = $.root().html() || $.html() || "";
+      },
+      failedRequestHandler({ error }) {
+        state.err = error;
       }
-    );
+    },
+    ephemeralConfiguration()
+  );
 
-    let payload = {};
-    try {
-      payload = JSON.parse(stdout || "{}");
-    } catch {
-      payload = { raw: stdout || "" };
-    }
-
-    let rawHtml = "";
-    try {
-      const rawResult = await execFileAsync(WEBCLAW_CLI_PATH, [url, "--raw-html"], {
-        timeout: WEBCLAW_CLI_TIMEOUT_MS,
-        maxBuffer: 10 * 1024 * 1024
-      });
-      rawHtml = String(rawResult.stdout || "");
-    } catch {
-      // Keep fast path usable even if raw HTML capture fails.
-    }
-
-    const statusCode = Number(payload?.status_code || payload?.status || 200);
-    if (rawHtml) {
-      payload.raw_html = rawHtml;
-    }
-    return {
-      ok: true,
-      status: Number.isFinite(statusCode) ? statusCode : 200,
-      payload,
-      stderr: String(stderr || "")
-    };
-  } catch (error) {
-    const errorText = error.stderr || error.stdout || error.message || "webclaw CLI failed";
-    return {
-      ok: false,
-      status: 0,
-      payload: { error: String(errorText).trim() }
-    };
-  }
+  await crawler.run([url]);
+  if (state.err) throw state.err;
+  if (!state.html) throw new Error("Empty Cheerio HTML");
+  return { html: state.html, statusCode: state.status };
 }
 
-function pickCoreContent(payload) {
-  const markdown = pickFirstString(payload, [
-    "content.markdown",
-    "data.markdown",
-    "markdown",
-    "data.cleaned_markdown",
-    "cleaned_markdown",
-    "data.cleaned_content",
-    "cleaned_content",
-    "data.content",
-    "content",
-    "data.text",
-    "text",
-    "data.article",
-    "article",
-    "result.markdown",
-    "result.content"
-  ]);
-  const rawHtml = pickFirstString(payload, [
-    "raw_html",
-    "content.raw_html",
-    "data.raw_html",
-    "raw_html",
-    "data.html",
-    "html",
-    "result.html",
-    "data.raw",
-    "raw"
-  ]);
-  const title = pickFirstString(payload, ["metadata.title", "content.title", "data.title", "title", "result.title"]);
-  return {
-    title,
-    markdown: String(markdown || ""),
-    rawHtml: String(rawHtml || "")
-  };
+async function playwrightFetchHtml(url, extractMode) {
+  const cookies = await loadPlaywrightCookies(url);
+  const state = { html: null, err: null };
+
+  const crawler = new PlaywrightCrawler(
+    {
+      headless: true,
+      maxRequestsPerCrawl: 1,
+      maxConcurrency: 1,
+      maxRequestRetries: 0,
+      requestHandlerTimeoutSecs: REQUEST_TIMEOUT_SECS,
+      navigationTimeoutSecs: REQUEST_TIMEOUT_SECS,
+      launchContext: {
+        launchOptions: {
+          headless: true,
+          args: ["--no-sandbox", "--disable-dev-shm-usage"]
+        }
+      },
+      preNavigationHooks: [
+        async ({ page }) => {
+          if (!cookies.length) return;
+          try {
+            await page.context().addCookies(cookies);
+          } catch {
+            /* ignore */
+          }
+        }
+      ],
+      async requestHandler({ page, response }) {
+        const sc = response && typeof response.status === "function" ? response.status() : null;
+        if (sc != null && sc >= 400) {
+          throw new Error(`HTTP ${sc}`);
+        }
+        await page.waitForLoadState("domcontentloaded", { timeout: REQUEST_TIMEOUT_SECS * 1000 }).catch(() => {});
+        if (extractMode === "ecommerce") {
+          await page.evaluate(() => window.scrollBy(0, window.innerHeight)).catch(() => {});
+          await delay(1500);
+        } else {
+          await delay(500);
+        }
+        state.html = await page.content();
+      },
+      failedRequestHandler({ error }) {
+        state.err = error;
+      }
+    },
+    ephemeralConfiguration()
+  );
+
+  await crawler.run([url]);
+  if (state.err) throw state.err;
+  if (!state.html) throw new Error("Empty Playwright HTML");
+  return state.html;
 }
 
-function pickFirstString(source, paths) {
-  for (const path of paths) {
-    const value = readPath(source, path);
-    if (typeof value === "string" && value.trim().length > 0) {
-      return value;
-    }
-  }
-  return "";
-}
-
-function readPath(obj, path) {
-  return path.split(".").reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), obj);
-}
+const ENGINE_LABEL_DEFAULT = "Crawlee Hybrid (Cheerio + Playwright)";
+const ENGINE_LABEL_EXT = "Extension WebSocket fallback";
 
 async function runOrchestrator({ url, mode = "auto", extract_mode = "article" }) {
   const extractMode = extract_mode === "ecommerce" ? "ecommerce" : "article";
 
-  if (extractMode === "ecommerce") {
-    if (mode === "fast_only") {
+  if (extractMode === "ecommerce" && mode === "fast_only") {
+    throw new Error(
+      "extract_mode 'ecommerce' cannot be used with mode 'fast_only'. Use 'auto' or 'playwright_only'."
+    );
+  }
+
+  let html = "";
+  let engine_used = "crawlee_cheerio";
+  let engine_label = ENGINE_LABEL_DEFAULT;
+
+  if (mode === "playwright_only") {
+    try {
+      html = await playwrightFetchHtml(url, extractMode);
+      engine_used = "crawlee_playwright";
+    } catch (e1) {
+      const extHtml = await fetchHtmlViaExtensionSocket(url);
+      if (!extHtml) throw e1;
+      html = extHtml;
+      engine_used = "extension_ws";
+      engine_label = ENGINE_LABEL_EXT;
+    }
+  } else if (mode === "fast_only") {
+    const { html: h } = await cheerioFetchHtml(url);
+    html = h;
+    if (shouldFallbackCheerioHtml(html, extractMode)) {
       throw new Error(
-        "extract_mode 'ecommerce' cannot be used with mode 'fast_only'. Use 'auto' or 'playwright_only'."
+        'Cheerio fast path returned insufficient HTML (SPA or blocked). Use mode "auto" or "playwright_only".'
       );
     }
-    const renderedHtml = await scrapeWithPlaywright(url, { extractMode: "ecommerce" });
-    const purified = purifyHtmlToMarkdown(renderedHtml, url, { extractMode: "ecommerce" });
-    return {
-      status: "success",
-      extract_mode: extractMode,
-      engine_used: "playwright_fallback",
-      engine_label: "Playwright Stealth (e-commerce)",
-      data: purified,
-      metrics: buildMetrics(renderedHtml, purified.markdown)
-    };
-  }
-
-  const coreResult = await runWebclawCli(url);
-  const coreContent = pickCoreContent(coreResult.payload);
-
-  if (mode === "fast_only") {
-    if (!coreResult.ok) {
-      const reason = coreResult.payload?.error || "webclaw CLI execution failed";
-      throw new Error(`Rust fast path failed: ${reason}`);
-    }
-    if (!coreContent.markdown.trim()) {
-      if (looksLikeSpaShell(coreContent.rawHtml)) {
-        throw new Error(
-          "Rust fast path returned empty content because this page is JS-rendered (SPA shell detected). Try mode='auto' or 'playwright_only'."
-        );
+  } else {
+    try {
+      const { html: h } = await cheerioFetchHtml(url);
+      html = h;
+      if (shouldFallbackCheerioHtml(html, extractMode)) {
+        throw new Error("cheerio_fallback");
       }
-      throw new Error("Rust fast path returned empty content. Try mode='auto' or 'playwright_only'.");
+    } catch {
+      try {
+        html = await playwrightFetchHtml(url, extractMode);
+        engine_used = "crawlee_playwright";
+      } catch (e2) {
+        const extHtml = await fetchHtmlViaExtensionSocket(url);
+        if (!extHtml) throw e2;
+        html = extHtml;
+        engine_used = "extension_ws";
+        engine_label = ENGINE_LABEL_EXT;
+      }
     }
   }
 
-  if (!shouldFallback(coreResult, coreContent, mode)) {
-    const source = coreContent.rawHtml || coreContent.markdown;
-    return {
-      status: "success",
-      extract_mode: extractMode,
-      engine_used: "webclaw_rust",
-      engine_label: "Rust Fast Path",
-      data: {
-        title: coreContent.title,
-        markdown: coreContent.markdown
-      },
-      metrics: buildMetrics(source, coreContent.markdown)
-    };
-  }
-
-  const renderedHtml = await scrapeWithPlaywright(url, { extractMode: "article" });
-  const purified = purifyHtmlToMarkdown(renderedHtml, url, { extractMode: "article" });
-
+  const purified = purifyHtmlToMarkdown(html, url, { extractMode });
   return {
     status: "success",
     extract_mode: extractMode,
-    engine_used: "playwright_fallback",
-    engine_label: "Playwright Stealth",
+    engine_used,
+    engine_label,
     data: purified,
-    metrics: buildMetrics(renderedHtml, purified.markdown)
+    metrics: buildMetrics(html, purified.markdown)
   };
 }
 

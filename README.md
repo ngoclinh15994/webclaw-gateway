@@ -1,7 +1,7 @@
 # WebClaw Hybrid Gateway
 
 **Save up to 90% on LLM scraping costs with a hybrid stealth pipeline.**  
-Rust-speed extraction for easy pages. Playwright stealth fallback for JS-heavy and bot-protected pages.
+[Crawlee](https://crawlee.dev/) **Cheerio** fast path for static HTML, **Playwright** for SPAs and bot-heavy pages—100% Node.js, Windows-friendly.
 
 ---
 
@@ -13,12 +13,14 @@ Most scraping stacks force a bad tradeoff:
 
 This project uses a **Smart Gateway architecture** to get both:
 
-1. **Fast Path (Rust CLI)**  
-   The gateway executes the official `0xMassi/webclaw` binary directly for high-speed, low-cost extraction.
-2. **Fallback Path (Playwright Stealth)**  
-   If content quality is low, blocked, or SPA-like, the gateway automatically switches to Playwright + stealth plugin.
-3. **Token-First Output**  
-   HTML is purified to Markdown using Readability + Turndown, then measured with `tiktoken`.
+1. **Fast Path (Crawlee Cheerio)**  
+   HTTP fetch + Cheerio parsing for static pages (≈30s timeout per request).
+2. **Stealth Path (Crawlee Playwright)**  
+   Headless Chromium when HTML is too small, blocked, or SPA-like (Crawlee browser pool + your synced cookies).
+3. **Optional extension bridge**  
+   Set `WEBCLAW_EXTENSION_WS` for a WebSocket that returns `{ "html": "..." }` if Playwright fails.
+4. **Token-First Output**  
+   HTML is purified to Markdown (Readability + Turndown for `article` mode; full-body Turndown for `ecommerce`), then measured with `tiktoken`.
 
 Bottom line: you stop paying to send useless HTML noise into GPT/Claude.
 
@@ -26,8 +28,8 @@ Bottom line: you stop paying to send useless HTML noise into GPT/Claude.
 
 ## Key Features
 
-- **Hybrid extractor brain**
-  - Auto-routing between `webclaw` Rust fast path and Playwright stealth fallback.
+- **Hybrid extractor brain (Crawlee)**
+  - Auto-routing between **CheerioCrawler** and **PlaywrightCrawler** (~30s caps per level).
 - **Primary KPI: token reduction**
   - Returns `raw_tokens`, `cleaned_tokens`, `tokens_saved`, `reduction_percentage`.
 - **Markdown purification pipeline**
@@ -36,14 +38,14 @@ Bottom line: you stop paying to send useless HTML noise into GPT/Claude.
   - Handles SPA shells, Cloudflare/Captcha-like failures via browser render path.
 - **Cookie sync-ready**
   - Cookie API and `data/cookies.json` support for 1-click sync workflows (including Chrome extension integration).
-- **One-command Docker startup**
-  - Included startup scripts for Windows and shell environments.
+- **Zero-Docker Node.js setup**
+  - `npm install`, `npm run setup` (`npx playwright install chromium`), `npm start` from repo root.
 - **Built-in dashboard (API monitoring)**
-  - UI on `http://localhost:8822`: aggregate stats, paginated scrape history, cookie manager, exclude-URL blacklist, OpenClaw skill installer, bilingual toggle (EN/VI).
+  - UI on `http://localhost:8822`: aggregate stats, paginated scrape history, cookie manager, exclude-URL list, OpenClaw skill installer, bilingual toggle (EN/VI).
 - **SQLite history at scale**
   - Scrape history is persisted in `data/webclaw.db` (no flat `history.json` bottleneck).
 - **User settings (exclude URLs)**
-  - `data/settings.json` with `exclude_urls`; blocked URLs return `EXCLUDED_BY_USER` before Rust/Playwright run.
+  - `data/settings.json` with `exclude_urls`; blocked URLs return `EXCLUDED_BY_USER` before any crawl (Cheerio/Playwright).
 - **OpenClaw agent integration**
   - One-click auto-install into `~/.openclaw/skills/webclaw_scraper/SKILL.md` (Markdown skill, not a TS tool).
 
@@ -51,18 +53,12 @@ Bottom line: you stop paying to send useless HTML noise into GPT/Claude.
 
 ## Architecture
 
-Single-container hybrid runtime:
+Native Node.js hybrid runtime (no Docker required):
 
-- `services/gateway/Dockerfile`
-  - Multi-stage build:
-    - Stage A: pulls official `ghcr.io/0xmassi/webclaw:latest`
-    - Stage B: Node.js + Playwright runtime
-    - Copies `/usr/local/bin/webclaw` into gateway container
 - `services/gateway/src/orchestrator.js`
-  - Executes `webclaw` via `child_process.execFile`
-  - Triggers Playwright fallback when needed
-- `services/gateway/src/playwrightFallback.js`
-  - Stealth mode + resource blocking + cookie injection
+  - **CheerioCrawler** → **PlaywrightCrawler** → optional **`extensionFallback.js`** (`WEBCLAW_EXTENSION_WS`)
+- `services/gateway/src/extensionFallback.js`
+  - Optional WebSocket bridge for a Chrome extension (`{ "type":"scrape","url" }` / `{ "html" }`)
 - `services/gateway/src/tokenMetrics.js`
   - KPI calculation using `tiktoken`
 - `services/gateway/src/db.js`
@@ -78,25 +74,32 @@ Single-container hybrid runtime:
 
 ### Requirements
 
-- Docker Desktop (or Docker Engine + Compose)
+- **Node.js 20+** and **npm**
+- Optional: **Git** (to clone the repo)
 
-### Windows (one click)
+### Install and run (all platforms)
 
-From repo root:
+From the **repository root**:
+
+```bash
+npm install
+npm run setup
+npm start
+```
+
+- **`npm run setup`** runs `npx playwright install chromium` (required for the Playwright crawler tier).
+
+Dashboard and API: **http://localhost:8822**
+
+### Windows (convenience)
 
 ```bat
 Start_WebClaw.bat
 ```
 
-What it does:
-- checks Docker daemon
-- runs `docker compose up -d --build --remove-orphans`
-- waits for `/health`
-- opens dashboard at `http://localhost:8822`
+Runs `npm install`, `npm run setup`, then `npm start`.
 
-### macOS / Linux
-
-From repo root:
+### macOS / Linux (convenience)
 
 ```bash
 chmod +x Start_WebClaw.sh
@@ -120,14 +123,17 @@ Request body:
 ```json
 {
   "url": "https://example.com/article",
-  "mode": "auto"
+  "mode": "auto",
+  "extract_mode": "article"
 }
 ```
 
+Optional **`extract_mode`**: `"article"` (default, Readability) or `"ecommerce"` (full body, no Readability). Omit or use `"article"` for most pages.
+
 Modes:
-- `auto`: Rust first, fallback to Playwright when needed
-- `fast_only`: Rust only (errors if JS-only/empty)
-- `playwright_only`: force browser fallback
+- `auto`: Cheerio first, then Playwright (then optional extension WS if configured)
+- `fast_only`: Cheerio only (errors if HTML is too small / SPA-like)
+- `playwright_only`: Playwright only (then extension WS if Playwright fails)
 
 If the URL matches any string in `exclude_urls` (substring match, case-insensitive), the API returns immediately:
 
@@ -151,8 +157,9 @@ Success response shape:
 ```json
 {
   "status": "success",
-  "engine_used": "webclaw_rust",
-  "engine_label": "Rust Fast Path",
+  "extract_mode": "article",
+  "engine_used": "crawlee_cheerio",
+  "engine_label": "Crawlee Hybrid (Cheerio + Playwright)",
   "data": {
     "title": "Page title",
     "markdown": "# Clean markdown"
@@ -197,14 +204,15 @@ Response:
   "status": "success",
   "stats": {
     "total_requests": 1234,
-    "total_tokens_saved": 9876543
+    "total_tokens_saved": 9876543,
+    "overall_reduction_percentage": 85.2
   }
 }
 ```
 
 ### GET `/api/v1/settings`
 
-Returns user settings (exclude URL blacklist).
+Returns user settings (`exclude_urls` list).
 
 ```bash
 curl "http://localhost:8822/api/v1/settings"
@@ -278,16 +286,11 @@ This format is designed for quick automation and browser-extension sync.
 
 ---
 
-## Run with Docker Compose
+## Optional Docker (deprecated)
 
-```bash
-docker compose up -d --build --remove-orphans
-```
+Legacy `Dockerfile` / `docker-compose` samples live under **`.deprecated/docker/`** for reference only. The supported workflow is **native Node** (above).
 
-Service:
-- `webclaw-gateway` exposed on `8822`
-
-Health check URL:
+Health check:
 
 ```text
 http://localhost:8822/health
@@ -334,20 +337,22 @@ Detailed notes:
 │  ├─ cookies.json
 │  ├─ settings.json
 │  └─ webclaw.db
+├─ scripts/
+│  └─ setup.js             # npx playwright install chromium
 ├─ openclaw-skill/
 │  └─ README.md
 ├─ services/
 │  └─ gateway/
 │     ├─ src/
-│     │  ├─ server.js
+│     │  ├─ app.js
+│     │  ├─ extensionFallback.js
 │     │  ├─ orchestrator.js
 │     │  ├─ db.js
 │     │  ├─ settings.js
 │     │  └─ templates/openclaw-skill.md
 │     ├─ ui/
-│     ├─ Dockerfile
 │     └─ package.json
-├─ docker-compose.yml
+├─ package.json            # workspace root (npm start / setup)
 ├─ Start_WebClaw.bat
 └─ Start_WebClaw.sh
 ```
@@ -356,7 +361,7 @@ Detailed notes:
 
 ## Credits
 
-- Official Rust extractor: [`0xMassi/webclaw`](https://github.com/0xMassi/webclaw)
+- Crawlee: [Apify Crawlee](https://crawlee.dev/)
+- Markdown stack: Mozilla Readability, Turndown, tiktoken
 
-This project does **not** fork or modify Rust source.  
-It orchestrates the official binary inside a production-friendly Node.js gateway.
+This gateway is a **Node.js** orchestration layer around Crawlee and your local Playwright install.
