@@ -7,12 +7,27 @@ if ! command -v npm >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "[1/3] npm install..."
+echo
+echo "=============================================================="
+echo "                 WEBCLAW HYBRID ENGINE BOOT"
+echo "=============================================================="
+echo
+echo "[1/3] Installing dependencies (npm install)"
 npm install
 
-echo "[2/3] npm run setup (Playwright Chromium + webclaw binary)..."
+echo
+echo "[2/3] Running setup (Playwright Chromium + webclaw binary)"
 npm run setup
 
-echo "[3/3] Starting WebClaw Hybrid Engine..."
-echo "Open http://localhost:8822 when ready."
+echo
+echo "[3/3] Starting WebClaw Hybrid Engine"
+echo
+echo "=============================================================="
+echo " DASHBOARD URL"
+echo " ------------------------------------------------------------"
+echo "   http://localhost:558822"
+echo
+echo " IMPORTANT: Open URL above in your browser to see dashboard."
+echo "=============================================================="
+echo
 exec npm start

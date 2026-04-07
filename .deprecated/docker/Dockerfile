@@ -13,6 +13,6 @@ RUN npm ci --omit=dev
 COPY src ./src
 COPY ui ./ui
 
-EXPOSE 8822
+EXPOSE 58822
 
 CMD ["npm", "start"]

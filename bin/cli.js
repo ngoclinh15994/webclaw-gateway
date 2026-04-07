@@ -100,14 +100,15 @@ function isServiceRegistered() {
 
 function startBackgroundService() {
   runPlaywrightChromiumInstall();
+  process.env.WEBCLAW_OPEN_BROWSER = "0";
 
   const root = packageRoot();
   const entry = gatewayAppPath();
-  const startArgs = ["start", entry, "--name", SERVICE_NAME, "--cwd", root];
+  const startArgs = ["start", entry, "--name", SERVICE_NAME, "--cwd", root, "--update-env"];
 
   if (isServiceOnline()) {
     console.log(`"${SERVICE_NAME}" is already online in PM2. Restarting...`);
-    const restart = runPm2(["restart", SERVICE_NAME]);
+    const restart = runPm2(["restart", SERVICE_NAME, "--update-env"]);
     if ((restart.status ?? 1) === 0) {
       console.log(`✅ "${SERVICE_NAME}" restarted.`);
     }

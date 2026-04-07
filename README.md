@@ -1,5 +1,7 @@
 # WebClaw Hybrid Engine 🚀
 
+[English](./README.md) | [Tiếng Việt](./README.vi.md)
+
 **The ultimate privacy-first web scraping bridge for AI agents.**
 
 WebClaw runs entirely on your machine: a **zero-Docker**, **NPM-native** Node.js stack that turns complex pages into **clean Markdown** for LLMs—without shipping raw HTML or browsing context to a third-party scraper.
@@ -12,7 +14,7 @@ WebClaw runs entirely on your machine: a **zero-Docker**, **NPM-native** Node.js
 npx webclaw-hybrid-engine-ln
 ```
 
-Wait until the terminal shows **Ready on port 8822**, then open the dashboard at **http://localhost:8822**.
+Wait until the terminal shows **Ready on port 58822**, then open the dashboard at **http://localhost:58822**.
 
 - **100% Node.js native** — no Docker, no container runtime.
 - **Privacy-first** — fetching, rendering, and Markdown conversion happen **locally**; your URLs and page content are not sent to WebClaw as a hosted service.
@@ -54,7 +56,7 @@ Install the published skill for your OpenClaw / ClawHub workflow:
 clawhub install webclaw-hybrid-engine-ln
 ```
 
-The skill talks to **http://localhost:8822**. **The engine must be running** (foreground `npx` or PM2 **webclaw**) **on port 8822** before the agent can scrape.
+The skill talks to **http://localhost:58822**. **The engine must be running** (foreground `npx` or PM2 **webclaw**) **on port 58822** before the agent can scrape.
 
 You can also install the skill from the local dashboard (**Install OpenClaw Skill**) or via `POST /api/v1/integrate/openclaw` when the engine is already up.
 
@@ -70,9 +72,11 @@ You can also install the skill from the local dashboard (**Install OpenClaw Skil
 
 ## API & dashboard
 
-- **Scrape:** `POST http://localhost:8822/api/v1/scrape` with JSON body `{"url": "<url>", "mode": "auto"}` (optional `extract_mode`: `article` | `ecommerce`).
-- **Health:** `GET http://localhost:8822/health`
-- **Dashboard:** **http://localhost:8822** — history, stats, cookies, exclude URLs, OpenClaw skill installer.
+- **Scrape:** `POST http://localhost:58822/api/v1/scrape` with JSON body `{"url": "<url>", "mode": "auto"}` (optional `extract_mode`: `article` | `ecommerce`).
+- **Health:** `GET http://localhost:58822/health`
+- **Dashboard:** **http://localhost:58822** — history, stats, cookies, exclude URLs, OpenClaw skill installer.
+- **Full API documentation (EN):** [`API.md`](./API.md)
+- **Tài liệu API tiếng Việt:** [`API.vi.md`](./API.vi.md)
 
 ---
 

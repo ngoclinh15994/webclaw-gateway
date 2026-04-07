@@ -3,7 +3,7 @@ const statusEl = document.getElementById("status");
 const copyBtn = document.getElementById("copy-btn");
 const syncBtn = document.getElementById("sync-btn");
 
-const GATEWAY_COOKIES_URL = "http://localhost:8822/api/v1/cookies";
+const GATEWAY_COOKIES_URL = "http://localhost:58822/api/v1/cookies";
 
 let state = {
   domain: "",
@@ -153,7 +153,7 @@ async function syncCookiesToEngine() {
 
     setStatus("Successfully synced to WebClaw Hybrid Engine!", "success");
   } catch (error) {
-    setStatus("Error: WebClaw Hybrid Engine is not running on port 8822", "error");
+    setStatus("Error: WebClaw Hybrid Engine is not running on port 58822", "error");
   }
 }
 

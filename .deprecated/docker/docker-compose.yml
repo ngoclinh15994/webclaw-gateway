@@ -5,8 +5,8 @@ services:
       context: ../../services/gateway
     container_name: webclaw-gateway
     environment:
-      - PORT=8822
+      - PORT=58822
     ports:
-      - "8822:8822"
+      - "58822:58822"
     volumes:
       - ../../data:/app/data

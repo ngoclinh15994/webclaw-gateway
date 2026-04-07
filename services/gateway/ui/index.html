@@ -37,7 +37,7 @@
               <span id="label-host">Host</span>: <span id="server-host" class="font-semibold">localhost</span>
             </p>
             <p class="text-sm">
-              <span id="label-port">Port</span>: <span class="font-semibold">8822</span>
+              <span id="label-port">Port</span>: <span class="font-semibold">558822</span>
             </p>
             <p class="text-sm flex items-center gap-2">
               <span class="text-green-500">●</span>
@@ -78,6 +78,7 @@
           <p id="exclude-error" class="text-rose-400 text-sm"></p>
           <ul id="exclude-list" class="space-y-2"></ul>
         </section>
+
       </section>
 
       <section class="bg-slate-900 rounded-xl p-5 border border-slate-800 space-y-4">
@@ -126,24 +127,45 @@
 
     <div
       id="openclaw-modal"
-      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="openclaw-modal-title"
     >
-      <div class="bg-slate-900 border border-slate-700 rounded-xl max-w-lg w-full shadow-xl p-5 space-y-4">
-        <h2 id="openclaw-modal-title" class="text-lg font-semibold text-slate-100">OpenClaw Skill Installation</h2>
-        <div
-          id="openclaw-wizard-log"
-          class="font-mono text-xs text-slate-300 bg-slate-950/80 border border-slate-800 rounded-lg p-3 min-h-[140px] max-h-56 overflow-y-auto space-y-1.5"
-        ></div>
-        <div class="flex justify-end gap-2">
+      <div class="bg-slate-900 border border-slate-700 rounded-xl max-w-xl w-full shadow-xl p-5 space-y-4">
+        <div class="flex items-center justify-between gap-3">
+          <h2 id="openclaw-modal-title" class="text-lg font-semibold text-slate-100">Cài đặt Skill OpenClaw</h2>
           <button
             id="openclaw-modal-close"
             type="button"
-            class="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 text-sm font-medium text-slate-100"
+            class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm"
+            aria-label="Đóng"
           >
-            Close
+            ✕
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <p id="modal-os-info" class="text-sm text-slate-200">Hệ điều hành: Đang phát hiện...</p>
+          <p id="modal-openclaw-status" class="text-sm text-slate-300">Đang kiểm tra thư mục OpenClaw...</p>
+          <div class="space-y-1.5">
+            <label for="modal-skill-path" class="text-sm text-slate-300">Đường dẫn cài đặt Skill:</label>
+            <input
+              id="modal-skill-path"
+              class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-2 text-sm text-slate-100"
+              placeholder="~/.openclaw/skills/webclaw-hybrid-engine-ln"
+            />
+          </div>
+          <p id="modal-install-feedback" class="text-sm"></p>
+        </div>
+
+        <div class="flex justify-end">
+          <button
+            id="modal-install-btn"
+            type="button"
+            class="px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-medium"
+          >
+            Xác nhận Cài đặt
           </button>
         </div>
       </div>

@@ -8,16 +8,31 @@ if %ERRORLEVEL% neq 0 (
   exit /b 1
 )
 
-echo [1/3] npm install...
+echo.
+echo ==============================================================
+echo                  WEBCLAW HYBRID ENGINE BOOT
+echo ==============================================================
+echo.
+echo [1/3] Installing dependencies ^(npm install^)
 call npm install
 if errorlevel 1 exit /b 1
 
-echo [2/3] npm run setup ^(Playwright Chromium + webclaw binary^)...
+echo.
+echo [2/3] Running setup ^(Playwright Chromium + webclaw binary^)
 call npm run setup
 if errorlevel 1 exit /b 1
 
-echo [3/3] Starting WebClaw Hybrid Engine...
-echo Open http://localhost:8822 when ready.
+echo.
+echo [3/3] Starting WebClaw Hybrid Engine
+echo.
+echo ==============================================================
+echo  DASHBOARD URL
+echo  ------------------------------------------------------------
+echo    http://localhost:558822
+echo.
+echo  IMPORTANT: Open URL above in your browser to see dashboard.
+echo ==============================================================
+echo.
 call npm start
 endlocal
 exit /b 0

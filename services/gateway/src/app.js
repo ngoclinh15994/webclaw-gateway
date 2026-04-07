@@ -3,6 +3,7 @@ process.env.CRAWLEE_LOG_LEVEL = process.env.CRAWLEE_LOG_LEVEL || "WARNING";
 const express = require("express");
 const path = require("path");
 const os = require("os");
+const { exec } = require("child_process");
 const fs = require("fs/promises");
 const fsSync = require("fs");
 const { PORT } = require("./config");
@@ -20,6 +21,41 @@ const {
 const app = express();
 app.use(express.json({ limit: "1mb" }));
 app.use(express.static(path.resolve(__dirname, "../ui")));
+
+function getOpenClawRoot() {
+  return path.join(os.homedir(), ".openclaw");
+}
+
+function getSuggestedSkillDirectory() {
+  return path.join(getOpenClawRoot(), "skills", "webclaw-hybrid-engine-ln");
+}
+
+function getSkillTemplatePath() {
+  const publishTemplate = path.resolve(__dirname, "../../../clawhub-publish/SKILL.md");
+  if (fsSync.existsSync(publishTemplate)) {
+    return publishTemplate;
+  }
+  return path.resolve(__dirname, "./templates/openclaw-skill.md");
+}
+
+function openDashboardInBrowser() {
+  if (process.env.WEBCLAW_OPEN_BROWSER === "0") return;
+  if (!process.stdout.isTTY) return;
+
+  const url = `http://localhost:${PORT}`;
+  const command =
+    process.platform === "win32"
+      ? `start "" "${url}"`
+      : process.platform === "darwin"
+        ? `open "${url}"`
+        : `xdg-open "${url}"`;
+
+  exec(command, (error) => {
+    if (error) {
+      console.warn(`Could not auto-open dashboard: ${error.message}`);
+    }
+  });
+}
 
 app.get("/health", (_, res) => {
   res.json({ status: "ok" });
@@ -108,6 +144,61 @@ app.get("/api/v1/integrate/openclaw/status", (_, res) => {
   }
 });
 
+app.get("/api/v1/system-info", (_, res) => {
+  try {
+    const openclawRoot = getOpenClawRoot();
+    const suggestedSkillPath = getSuggestedSkillDirectory();
+    const isOpenClawInstalled = fsSync.existsSync(openclawRoot);
+    const osType =
+      process.platform === "win32" ? "Windows" : process.platform === "darwin" ? "macOS" : "Linux";
+
+    return res.json({
+      status: "success",
+      osType,
+      suggestedSkillPath,
+      isOpenClawInstalled
+    });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: error.message });
+  }
+});
+
+app.post("/api/v1/install-skill", async (req, res) => {
+  try {
+    const payload = req.body || {};
+    const requestedPath =
+      typeof payload.targetPath === "string" && payload.targetPath.trim()
+        ? payload.targetPath.trim()
+        : getSuggestedSkillDirectory();
+
+    const normalizedTarget = path.resolve(requestedPath);
+    if (!path.isAbsolute(normalizedTarget)) {
+      return res.status(400).json({ status: "error", message: "targetPath must be an absolute path" });
+    }
+    if (!normalizedTarget.includes(`${path.sep}.openclaw${path.sep}`)) {
+      return res.status(400).json({
+        status: "error",
+        message: "For safety, targetPath must be inside the .openclaw directory."
+      });
+    }
+
+    const targetFile = path.join(normalizedTarget, "SKILL.md");
+    const templatePath = getSkillTemplatePath();
+    const templateContent = await fs.readFile(templatePath, "utf8");
+
+    fsSync.mkdirSync(normalizedTarget, { recursive: true });
+    await fs.writeFile(targetFile, templateContent, "utf8");
+
+    return res.json({
+      status: "success",
+      message: "Skill installed successfully. Please restart OpenClaw.",
+      targetPath: targetFile
+    });
+  } catch (error) {
+    return res.status(500).json({ status: "error", message: error.message });
+  }
+});
+
 app.post("/api/v1/integrate/openclaw", async (_, res) => {
   try {
     const homeDir = os.homedir();
@@ -190,6 +281,7 @@ async function start() {
   app.listen(PORT, () => {
     console.log(`webclaw-hybrid-engine-ln listening on :${PORT}`);
     console.log(`Ready on port ${PORT}`);
+    openDashboardInBrowser();
   });
 }
 

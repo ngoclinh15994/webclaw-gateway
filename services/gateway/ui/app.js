@@ -7,8 +7,12 @@ const totalRequests = document.getElementById("total-requests");
 const overallReductionPercent = document.getElementById("overall-reduction-percent");
 const totalTokensSavedSub = document.getElementById("total-tokens-saved-sub");
 const openclawModal = document.getElementById("openclaw-modal");
-const openclawWizardLog = document.getElementById("openclaw-wizard-log");
 const openclawModalClose = document.getElementById("openclaw-modal-close");
+const modalOsInfo = document.getElementById("modal-os-info");
+const modalOpenclawStatus = document.getElementById("modal-openclaw-status");
+const modalSkillPath = document.getElementById("modal-skill-path");
+const modalInstallBtn = document.getElementById("modal-install-btn");
+const modalInstallFeedback = document.getElementById("modal-install-feedback");
 
 const INSTALL_BTN_CLASS_DEFAULT =
   "bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-4 py-2 rounded";
@@ -16,7 +20,6 @@ const INSTALL_BTN_CLASS_INSTALLED =
   "bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded shadow-sm ring-1 ring-emerald-500/30";
 
 let openClawSkillInstalled = false;
-let openClawWizardRunning = false;
 
 const excludeForm = document.getElementById("exclude-form");
 const excludeInput = document.getElementById("exclude-input");
@@ -142,10 +145,6 @@ function formatNumber(n) {
   return num.toLocaleString(currentLang === "vi" ? "vi-VN" : "en-US");
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 function applyInstallButtonState() {
   if (openClawSkillInstalled) {
     installOpenclawBtn.textContent = t("installSkillInstalled");
@@ -171,12 +170,55 @@ async function loadOpenClawStatus() {
   applyInstallButtonState();
 }
 
-function appendWizardLine(text) {
-  const line = document.createElement("div");
-  line.className = "whitespace-pre-wrap";
-  line.textContent = text;
-  openclawWizardLog.appendChild(line);
-  openclawWizardLog.scrollTop = openclawWizardLog.scrollHeight;
+async function loadSystemInfo() {
+  try {
+    const res = await fetch("/api/v1/system-info");
+    const json = await res.json();
+    if (!res.ok || json.status !== "success") {
+      throw new Error(json.message || "Failed to load system info");
+    }
+    modalOsInfo.textContent = `Hệ điều hành: ${json.osType || "Không xác định"}`;
+    modalOpenclawStatus.textContent = json.isOpenClawInstalled
+      ? "🟢 Tìm thấy thư mục OpenClaw"
+      : "🔴 Không tìm thấy thư mục OpenClaw";
+    modalSkillPath.value = json.suggestedSkillPath || "";
+  } catch (err) {
+    modalInstallFeedback.textContent = err.message;
+    modalInstallFeedback.className = "text-sm text-rose-400";
+  }
+}
+
+async function installSkillToPath() {
+  const targetPath = modalSkillPath.value.trim();
+  if (!targetPath) {
+    modalInstallFeedback.textContent = "Vui lòng nhập đường dẫn cài đặt Skill.";
+    modalInstallFeedback.className = "text-sm text-rose-400";
+    return;
+  }
+
+  modalInstallBtn.disabled = true;
+  modalInstallFeedback.textContent = "";
+  try {
+    const res = await fetch("/api/v1/install-skill", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ targetPath })
+    });
+    const json = await res.json();
+    if (!res.ok || json.status !== "success") {
+      throw new Error(json.message || "Install failed");
+    }
+    modalInstallFeedback.textContent = "✅ Đã cài đặt Skill thành công! Vui lòng khởi động lại OpenClaw.";
+    modalInstallFeedback.className = "text-sm text-emerald-400";
+    alert("✅ Đã cài đặt Skill thành công! Vui lòng khởi động lại OpenClaw.");
+    openclawModal.classList.add("hidden");
+    await loadOpenClawStatus();
+  } catch (err) {
+    modalInstallFeedback.textContent = err.message;
+    modalInstallFeedback.className = "text-sm text-rose-400";
+  } finally {
+    modalInstallBtn.disabled = false;
+  }
 }
 
 function renderLanguage() {
@@ -208,8 +250,12 @@ function renderLanguage() {
   document.getElementById("cookie-col-domain").textContent = t("cookieColDomain");
   document.getElementById("cookie-col-string").textContent = t("cookieColString");
   document.getElementById("cookie-col-action").textContent = t("cookieColAction");
-  document.getElementById("openclaw-modal-title").textContent = t("wizardTitle");
-  openclawModalClose.textContent = t("wizardClose");
+  document.getElementById("openclaw-modal-title").textContent = "Cài đặt Skill OpenClaw";
+  modalOsInfo.textContent = "Hệ điều hành: Đang phát hiện...";
+  modalOpenclawStatus.textContent = "Đang kiểm tra thư mục OpenClaw...";
+  document.querySelector('label[for="modal-skill-path"]').textContent = "Đường dẫn cài đặt Skill:";
+  modalInstallBtn.textContent = "Xác nhận Cài đặt";
+  openclawModalClose.textContent = "✕";
   applyInstallButtonState();
   langToggleBtn.textContent = currentLang.toUpperCase();
   renderCookies();
@@ -445,88 +491,22 @@ historyNext.addEventListener("click", async () => {
   await loadHistory();
 });
 
-async function runOpenClawInstallWizard() {
-  if (openClawWizardRunning) return;
-  openClawWizardRunning = true;
-  integrationMessage.textContent = "";
-  integrationMessage.className = "text-sm mt-2";
-  openclawWizardLog.innerHTML = "";
-  openclawModal.classList.remove("hidden");
-  installOpenclawBtn.disabled = true;
-  openclawModalClose.disabled = true;
-
-  try {
-    await sleep(400);
-    appendWizardLine(t("wizardStep1"));
-
-    await sleep(450);
-    appendWizardLine(t("wizardStep2Search"));
-
-    await sleep(400);
-    const statusRes = await fetch("/api/v1/integrate/openclaw/status");
-    const statusJson = await statusRes.json();
-
-    if (!statusRes.ok || statusJson.status !== "success") {
-      appendWizardLine(t("wizardPostError").replace("{msg}", statusJson.message || "status request failed"));
-      integrationMessage.textContent = statusJson.message || "";
-      integrationMessage.className = "text-sm mt-2 text-rose-400";
-      return;
-    }
-
-    if (!statusJson.openclawRootExists) {
-      appendWizardLine(t("wizardStep2Error"));
-      integrationMessage.textContent = statusJson.message || "";
-      integrationMessage.className = "text-sm mt-2 text-rose-400";
-      return;
-    }
-
-    await sleep(350);
-    appendWizardLine(t("wizardStep2Found"));
-
-    await sleep(400);
-    appendWizardLine(t("wizardStep3"));
-
-    const postRes = await fetch("/api/v1/integrate/openclaw", { method: "POST" });
-    const postJson = await postRes.json().catch(() => ({}));
-
-    if (!postRes.ok || postJson.status !== "success") {
-      const msg = postJson.message || postRes.statusText || "Integration failed";
-      appendWizardLine(t("wizardPostError").replace("{msg}", msg));
-      integrationMessage.textContent = msg;
-      integrationMessage.className = "text-sm mt-2 text-rose-400";
-      return;
-    }
-
-    await sleep(350);
-    appendWizardLine(t("wizardStep4"));
-    integrationMessage.textContent = postJson.message || "";
-    integrationMessage.className = "text-sm mt-2 text-emerald-400";
-
-    await loadOpenClawStatus();
-    await sleep(400);
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    appendWizardLine(t("wizardPostError").replace("{msg}", msg));
-    integrationMessage.textContent = msg;
-    integrationMessage.className = "text-sm mt-2 text-rose-400";
-  } finally {
-    openClawWizardRunning = false;
-    installOpenclawBtn.disabled = false;
-    openclawModalClose.disabled = false;
-  }
-}
-
 installOpenclawBtn.addEventListener("click", () => {
-  runOpenClawInstallWizard();
+  modalInstallFeedback.textContent = "";
+  modalInstallFeedback.className = "text-sm";
+  openclawModal.classList.remove("hidden");
+  loadSystemInfo();
+});
+modalInstallBtn.addEventListener("click", () => {
+  installSkillToPath();
 });
 
 openclawModalClose.addEventListener("click", () => {
-  if (openClawWizardRunning) return;
   openclawModal.classList.add("hidden");
 });
 
 openclawModal.addEventListener("click", (event) => {
-  if (event.target === openclawModal && !openClawWizardRunning) {
+  if (event.target === openclawModal) {
     openclawModal.classList.add("hidden");
   }
 });
