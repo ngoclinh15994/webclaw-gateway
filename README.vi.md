@@ -21,17 +21,15 @@ npx webclaw-hybrid-engine-ln
 
 ---
 
-## Chạy nền (set & forget)
+## Chạy nền 24/7
 
-Để engine chạy nền và tự khởi động lại sau reboot, dùng [PM2](https://pm2.keymetrics.io/):
+Để chạy WebClaw 24/7 với PM2:
 
 ```bash
-npm install -g pm2
-pm2 start npx --name "webclaw" -- webclaw-hybrid-engine-ln
-pm2 save && pm2 startup
+npm install -g webclaw-hybrid-engine-ln
+pm2 start webclaw-hybrid-engine-ln --name "webclaw"
+pm2 save
 ```
-
-Làm theo hướng dẫn in ra từ `pm2 startup` để hoàn tất cấu hình startup một lần.
 
 ---
 
@@ -48,17 +46,31 @@ Xem log: `pm2 logs webclaw`.
 
 ---
 
-## Tích hợp OpenClaw
+## Cài đặt OpenClaw Skill
 
-Cài skill đã publish cho OpenClaw / ClawHub:
+### ⚙️ Cách cài OpenClaw Skill
+
+Chúng tôi cung cấp Local Dashboard 1-click đẹp mắt để cài skill tự động, không cần thao tác tay với đường dẫn thư mục.
+
+**Bước 1: Khởi động WebClaw**  
+Đảm bảo engine đang chạy (bằng `npx` hoặc `pm2`).
 
 ```bash
-clawhub install webclaw-hybrid-engine-ln
+npx webclaw-hybrid-engine-ln
 ```
 
-Skill sẽ gọi về **http://localhost:58822**. Vì vậy engine bắt buộc phải chạy (foreground `npx` hoặc PM2 `webclaw`) trên port **58822** trước khi agent scrape.
+**Bước 2: Mở Local Dashboard**  
+Mở trình duyệt và truy cập: `http://localhost:58822`
 
-Bạn cũng có thể cài skill qua dashboard local (**Install OpenClaw Skill**) hoặc API `POST /api/v1/integrate/openclaw`.
+**Bước 3: Cài đặt qua UI**
+
+Nhấn nút màu vàng "Cài đặt Skill OpenClaw" ở góc trên bên phải dashboard.
+
+Một popup sẽ hiện ra, tự động nhận diện hệ điều hành và thư mục skills của OpenClaw.
+
+Nhấn "Xác nhận Cài đặt".
+
+🟢 Khởi động lại OpenClaw agent. Tool `webclaw-hybrid-engine-ln` đã sẵn sàng để sử dụng!
 
 ---
 

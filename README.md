@@ -21,17 +21,15 @@ Wait until the terminal shows **Ready on port 58822**, then open the dashboard a
 
 ---
 
-## Background service (set & forget)
+## 24/7 background service
 
-To keep the engine running after you close the terminal and to survive reboots (with PM2’s startup hook), use [PM2](https://pm2.keymetrics.io/):
+To run WebClaw 24/7 with PM2:
 
 ```bash
-npm install -g pm2
-pm2 start npx --name "webclaw" -- webclaw-hybrid-engine-ln
-pm2 save && pm2 startup
+npm install -g webclaw-hybrid-engine-ln
+pm2 start webclaw-hybrid-engine-ln --name "webclaw"
+pm2 save
 ```
-
-Follow the on-screen instructions from `pm2 startup` once (so PM2 respawns your apps after a reboot).
 
 ---
 
@@ -48,17 +46,31 @@ For logs: `pm2 logs webclaw`.
 
 ---
 
-## Integration with OpenClaw
+## OpenClaw Skill Installation
 
-Install the published skill for your OpenClaw / ClawHub workflow:
+### ⚙️ How to Install the OpenClaw Skill
+
+We provide a beautiful, 1-Click Local Dashboard to install the skill automatically without messing with file paths.
+
+**Step 1: Start WebClaw**  
+Ensure the engine is running (either via `npx` or `pm2`).
 
 ```bash
-clawhub install webclaw-hybrid-engine-ln
+npx webclaw-hybrid-engine-ln
 ```
 
-The skill talks to **http://localhost:58822**. **The engine must be running** (foreground `npx` or PM2 **webclaw**) **on port 58822** before the agent can scrape.
+**Step 2: Open the Local Dashboard**  
+Open your browser and go to: `http://localhost:58822`
 
-You can also install the skill from the local dashboard (**Install OpenClaw Skill**) or via `POST /api/v1/integrate/openclaw` when the engine is already up.
+**Step 3: Install via UI**
+
+Click the yellow "Cài đặt Skill OpenClaw" button at the top right of the dashboard.
+
+A popup will appear, automatically detecting your OS and the OpenClaw skills folder.
+
+Click "Xác nhận Cài đặt".
+
+🟢 Restart your OpenClaw agent. The `webclaw-hybrid-engine-ln` tool is now ready to use!
 
 ---
 

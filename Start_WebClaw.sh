@@ -25,7 +25,7 @@ echo
 echo "=============================================================="
 echo " DASHBOARD URL"
 echo " ------------------------------------------------------------"
-echo "   http://localhost:558822"
+echo "   http://localhost:58822"
 echo
 echo " IMPORTANT: Open URL above in your browser to see dashboard."
 echo "=============================================================="
