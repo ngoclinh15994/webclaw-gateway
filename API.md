@@ -120,8 +120,14 @@ Returns aggregate token-saving stats.
 
 ## OpenClaw Integration
 
+These endpoints run on the WebClaw engine (default base URL `http://localhost:58822`). They only **write or inspect the OpenClaw skill file on disk** (under `~/.openclaw`). They do **not** start the OpenClaw app, invoke the `webclaw-hybrid-engine-ln` tool on your behalf, or execute arbitrary OpenClaw functions. After a successful install, restart OpenClaw so it reloads skills.
+
+**Fixed default skill location (status + legacy one-click install):** `~/.openclaw/skills/webclaw_scraper/SKILL.md`
+
+**UI / custom install:** `GET /api/v1/system-info` returns `suggestedSkillPath` under `~/.openclaw/skills/webclaw-hybrid-engine-ln`. Use `POST /api/v1/install-skill` with that directory (or another path **inside** `~/.openclaw`) if you want the skill in that folder instead of `webclaw_scraper`.
+
 ### GET `/api/v1/integrate/openclaw/status`
-Checks whether OpenClaw root exists and whether skill is already installed.
+Checks whether `~/.openclaw` exists and whether **`~/.openclaw/skills/webclaw_scraper/SKILL.md`** is present (`installed`).
 
 **Response (example)**
 ```json
@@ -133,7 +139,7 @@ Checks whether OpenClaw root exists and whether skill is already installed.
 ```
 
 ### POST `/api/v1/integrate/openclaw`
-Installs skill automatically into default OpenClaw location.
+Installs the skill template into **`~/.openclaw/skills/webclaw_scraper/SKILL.md`** (creates directories as needed). Fails if `~/.openclaw` does not exist.
 
 **Response (success)**
 ```json
@@ -143,7 +149,7 @@ Installs skill automatically into default OpenClaw location.
 }
 ```
 
-**Response (OpenClaw missing)**
+**Response (OpenClaw missing)** — HTTP **404**
 ```json
 {
   "status": "error",
