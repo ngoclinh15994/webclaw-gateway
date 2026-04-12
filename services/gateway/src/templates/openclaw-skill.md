@@ -1,7 +1,7 @@
 ---
 name: webclaw-hybrid-engine-ln
-description: "MANDATORY WEB SCRAPER: WebClaw is a local HTTP API (port 58822). Do NOT use web_fetch. You MUST use your `exec` (Python) tool to send an HTTP request to this local engine to read URLs."
-version: 1.0.8
+description: "MANDATORY WEB SCRAPER: WebClaw is a local HTTP API (port 58822). Do NOT use web_fetch. You MUST use your `exec` (Bash) tool to run curl against this local engine to read URLs."
+version: 1.0.9
 ---
 
 # WebClaw Hybrid Engine · MANDATORY WEB SCRAPER
@@ -10,7 +10,7 @@ version: 1.0.8
 
 WebClaw Hybrid Engine is a **background HTTP service** running on your local machine at **http://localhost:58822**.
 
-**CRITICAL:** You do **NOT** have a native tool call for this. To use it, you **MUST** use your existing **`exec`** tool (Python environment) to send an HTTP request to the engine.
+**CRITICAL:** You do **NOT** have a native tool call for this. To use it, you **MUST** use your existing **`exec`** tool (Bash environment) to send an HTTP request to the engine.
 
 ### 2. API Specification
 
@@ -22,28 +22,30 @@ WebClaw Hybrid Engine is a **background HTTP service** running on your local mac
 
 ### 3. Execution Rules (Strict)
 
-- **Rule 1:** Whenever the user asks you to read a link, you **MUST** use the **`exec`** tool and run the Python snippet provided in **Section 4**.
-- **Rule 2:** **NEVER** use `web_fetch`, `browse`, or `requests.get()` directly to the target URL. You **MUST** route the request through the WebClaw local engine.
+- **Rule 1:** Whenever the user asks you to read a link, you **MUST** use the **`exec`** tool and run the **`curl`** command provided in **Section 4**.
+- **Rule 2:** **NEVER** use `web_fetch`, `browse`, or `requests.get()` directly to the target URL. You **MUST** route the request through the WebClaw local engine (via **`curl` to localhost:58822** only).
 
 ### 4. Code Snippet (Copy & Paste this into your `exec` tool)
 
-When you need to read a URL, execute this **exact** Python code using your **`exec`** tool. Replace `TARGET_URL_HERE` with the user's link:
+When you need to read a URL, execute this exact `curl` command using your `exec` tool. Replace `TARGET_URL_HERE` with the user's link. Ensure you use `security="full"` if your environment requires it.
 
-```python
-import urllib.request
-import json
-
-target_url = "TARGET_URL_HERE"
-api_url = "http://localhost:58822/api/v1/scrape"
-data = json.dumps({"url": target_url}).encode("utf-8")
-req = urllib.request.Request(api_url, data=data, headers={'Content-Type': 'application/json'}, method='POST')
-
-try:
-    with urllib.request.urlopen(req) as response:
-        print(response.read().decode('utf-8'))
-except Exception as e:
-    print(f"WebClaw Engine Error: {e}. Please ensure the user has started the engine via 'npx webclaw-hybrid-engine-ln'.")
+```bash
+curl -sS -X POST http://localhost:58822/api/v1/scrape \
+  -H "Content-Type: application/json" \
+  -d "{\"url\": \"TARGET_URL_HERE\"}"
 ```
+
+**Single-line (equivalent, often more reliable in `exec`):**
+
+```bash
+curl -sS -X POST http://localhost:58822/api/v1/scrape -H "Content-Type: application/json" -d "{\"url\": \"TARGET_URL_HERE\"}"
+```
+
+**CRITICAL RULES FOR EXECUTION:**
+
+- Do **NOT** use python. Just run the `curl` command directly.
+- The `curl` command is sent to **localhost:58822** (the WebClaw Engine), **NOT** to the target website.
+- If the output says "Connection refused" or hangs, tell the user exactly: "⚠️ Lỗi: Không thể kết nối. Vui lòng bật WebClaw Engine (npx webclaw-hybrid-engine-ln)".
 
 ## Capability highlights
 
@@ -61,7 +63,11 @@ The **WebClaw Hybrid Engine** must be running locally on port **58822** before r
 
 ## Connection error handling (blocking)
 
-If the Python snippet above throws a connection error (e.g. `ConnectionRefusedError`, timeout, or any signal that **nothing is listening on port 58822**), this skill **cannot run**. You **must not** silently fall back to `web_fetch`, `browse`, or any other fetcher. **Stop** and tell the user using this **exact** message:
+If the **`curl`** command fails with connection refused, timeout, hang, or any signal that **nothing is listening on port 58822**, this skill **cannot run**. You **must not** silently fall back to `web_fetch`, `browse`, or any other fetcher. Tell the user exactly:
+
+"⚠️ Lỗi: Không thể kết nối. Vui lòng bật WebClaw Engine (npx webclaw-hybrid-engine-ln)"
+
+You may also use this longer English message if the user prefers English:
 
 "⚠️ **WebClaw Hybrid Engine is not running — this skill cannot execute until it is.**
 
