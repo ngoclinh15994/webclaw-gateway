@@ -28,7 +28,7 @@ If `curl` cannot reach the engine, use the same onboarding copy as in the skill 
 
 - **Name:** `webclaw-hybrid-engine-ln`
 - **Version:** `1.0.2` (see template frontmatter)
-- **Install path:** `~/.openclaw/skills/webclaw_scraper/SKILL.md`
+- **Install path:** `~/.openclaw/skills/webclaw-hybrid-engine-ln/SKILL.md`
 
 ---
 

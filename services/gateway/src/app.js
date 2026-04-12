@@ -133,9 +133,8 @@ app.get("/api/v1/stats", (_, res) => {
 
 app.get("/api/v1/integrate/openclaw/status", (_, res) => {
   try {
-    const homeDir = os.homedir();
-    const openclawRoot = path.join(homeDir, ".openclaw");
-    const skillPath = path.join(openclawRoot, "skills", "webclaw_scraper", "SKILL.md");
+    const openclawRoot = getOpenClawRoot();
+    const skillPath = path.join(getSuggestedSkillDirectory(), "SKILL.md");
     const installed = fsSync.existsSync(skillPath);
     const openclawRootExists = fsSync.existsSync(openclawRoot);
     return res.json({ status: "success", installed, openclawRootExists });
@@ -201,11 +200,10 @@ app.post("/api/v1/install-skill", async (req, res) => {
 
 app.post("/api/v1/integrate/openclaw", async (_, res) => {
   try {
-    const homeDir = os.homedir();
-    const openclawRoot = path.join(homeDir, ".openclaw");
-    const targetDirectory = path.join(openclawRoot, "skills", "webclaw_scraper");
+    const openclawRoot = getOpenClawRoot();
+    const targetDirectory = getSuggestedSkillDirectory();
     const targetFile = path.join(targetDirectory, "SKILL.md");
-    const templatePath = path.resolve(__dirname, "./templates/openclaw-skill.md");
+    const templatePath = getSkillTemplatePath();
 
     try {
       await fs.access(openclawRoot);

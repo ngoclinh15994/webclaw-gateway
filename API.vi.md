@@ -122,12 +122,12 @@ Trả về thống kê tổng hợp về token saving.
 
 Các endpoint này chạy trên engine WebClaw (base URL mặc định `http://localhost:58822`). Chúng chỉ **ghi hoặc kiểm tra file skill OpenClaw trên đĩa** (trong `~/.openclaw`). Chúng **không** khởi chạy ứng dụng OpenClaw, **không** gọi tool `webclaw-hybrid-engine-ln` thay cho agent, và **không** thực thi tùy ý logic bên trong OpenClaw. Sau khi cài thành công, hãy **khởi động lại OpenClaw** để nạp lại skill.
 
-**Vị trí skill mặc định (status + cài một cú cũ):** `~/.openclaw/skills/webclaw_scraper/SKILL.md`
+**Vị trí skill mặc định (trùng tên skill `webclaw-hybrid-engine-ln`):** `~/.openclaw/skills/webclaw-hybrid-engine-ln/SKILL.md`
 
-**UI / cài tùy chỉnh:** `GET /api/v1/system-info` trả `suggestedSkillPath` dạng `~/.openclaw/skills/webclaw-hybrid-engine-ln`. Dùng `POST /api/v1/install-skill` với thư mục đó (hoặc đường dẫn khác **nằm trong** `~/.openclaw`) nếu bạn muốn skill nằm ở thư mục đó thay vì `webclaw_scraper`.
+`GET /api/v1/system-info` trả cùng đường dẫn trong `suggestedSkillPath`. `POST /api/v1/install-skill` vẫn có thể cài vào thư mục khác **nằm trong** `~/.openclaw` nếu bạn truyền `targetPath` tùy chỉnh.
 
 ### GET `/api/v1/integrate/openclaw/status`
-Kiểm tra `~/.openclaw` có tồn tại không và file **`~/.openclaw/skills/webclaw_scraper/SKILL.md`** đã có chưa (`installed`).
+Kiểm tra `~/.openclaw` có tồn tại không và file **`~/.openclaw/skills/webclaw-hybrid-engine-ln/SKILL.md`** đã có chưa (`installed`).
 
 **Response (ví dụ)**
 ```json
@@ -139,7 +139,7 @@ Kiểm tra `~/.openclaw` có tồn tại không và file **`~/.openclaw/skills/w
 ```
 
 ### POST `/api/v1/integrate/openclaw`
-Cài template skill vào **`~/.openclaw/skills/webclaw_scraper/SKILL.md`** (tự tạo thư mục nếu cần). Trả lỗi nếu chưa có thư mục `~/.openclaw`.
+Cài template skill vào **`~/.openclaw/skills/webclaw-hybrid-engine-ln/SKILL.md`** (tự tạo thư mục nếu cần). Dùng cùng nguồn template như `POST /api/v1/install-skill` (`getSkillTemplatePath()` trong code). Trả lỗi nếu chưa có thư mục `~/.openclaw`.
 
 **Response thành công**
 ```json

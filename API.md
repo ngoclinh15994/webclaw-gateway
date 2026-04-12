@@ -122,12 +122,12 @@ Returns aggregate token-saving stats.
 
 These endpoints run on the WebClaw engine (default base URL `http://localhost:58822`). They only **write or inspect the OpenClaw skill file on disk** (under `~/.openclaw`). They do **not** start the OpenClaw app, invoke the `webclaw-hybrid-engine-ln` tool on your behalf, or execute arbitrary OpenClaw functions. After a successful install, restart OpenClaw so it reloads skills.
 
-**Fixed default skill location (status + legacy one-click install):** `~/.openclaw/skills/webclaw_scraper/SKILL.md`
+**Default skill location (matches skill name `webclaw-hybrid-engine-ln`):** `~/.openclaw/skills/webclaw-hybrid-engine-ln/SKILL.md`
 
-**UI / custom install:** `GET /api/v1/system-info` returns `suggestedSkillPath` under `~/.openclaw/skills/webclaw-hybrid-engine-ln`. Use `POST /api/v1/install-skill` with that directory (or another path **inside** `~/.openclaw`) if you want the skill in that folder instead of `webclaw_scraper`.
+`GET /api/v1/system-info` returns the same path as `suggestedSkillPath`. `POST /api/v1/install-skill` can still install into another directory **inside** `~/.openclaw` if you pass a custom `targetPath`.
 
 ### GET `/api/v1/integrate/openclaw/status`
-Checks whether `~/.openclaw` exists and whether **`~/.openclaw/skills/webclaw_scraper/SKILL.md`** is present (`installed`).
+Checks whether `~/.openclaw` exists and whether **`~/.openclaw/skills/webclaw-hybrid-engine-ln/SKILL.md`** is present (`installed`).
 
 **Response (example)**
 ```json
@@ -139,7 +139,7 @@ Checks whether `~/.openclaw` exists and whether **`~/.openclaw/skills/webclaw_sc
 ```
 
 ### POST `/api/v1/integrate/openclaw`
-Installs the skill template into **`~/.openclaw/skills/webclaw_scraper/SKILL.md`** (creates directories as needed). Fails if `~/.openclaw` does not exist.
+Installs the skill template into **`~/.openclaw/skills/webclaw-hybrid-engine-ln/SKILL.md`** (creates directories as needed). Uses the same template source as `POST /api/v1/install-skill` (`getSkillTemplatePath()` in code). Fails if `~/.openclaw` does not exist.
 
 **Response (success)**
 ```json
