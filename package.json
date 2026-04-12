@@ -1,6 +1,6 @@
 {
   "name": "webclaw-hybrid-engine-ln",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "WebClaw Hybrid Engine — privacy-first local bridge for OpenClaw (Crawlee + Playwright).",
   "repository": {
     "type": "git",
