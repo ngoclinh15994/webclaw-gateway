@@ -49,6 +49,39 @@ Main endpoint to fetch and convert a URL into clean Markdown.
 - `mode` (string, optional): `auto` | `fast_only` | `playwright_only` (default `auto`)
 - `extract_mode` (string, optional): `article` | `ecommerce` (default `article`)
 
+**How to choose parameters**
+
+- `mode="auto"` (recommended): starts with Cheerio (fast), then automatically falls back to Playwright if the page looks dynamic/blocked/too thin.
+- `mode="fast_only"`: Cheerio-only path for speed. Use when you want maximum throughput and the site is mostly static HTML.
+- `mode="playwright_only"`: browser-first path for SPA/login-like or heavily JS-rendered pages where static fetch is often insufficient.
+- `extract_mode="article"` (default): best for news/blog/docs pages; prioritizes main readable content and usually gives the cleanest Markdown.
+- `extract_mode="ecommerce"`: best for product/listing/review pages; preserves more commercial page blocks (prices/specs/reviews-like sections) instead of aggressive article-style extraction.
+
+**Important compatibility note**
+
+- `extract_mode="ecommerce"` **cannot** be used with `mode="fast_only"`.
+- Valid pairs for ecommerce are:
+  - `mode="auto"` + `extract_mode="ecommerce"` (recommended first)
+  - `mode="playwright_only"` + `extract_mode="ecommerce"` (when you need browser rendering from the start)
+
+**Practical examples**
+
+```json
+{
+  "url": "https://example.com/news/abc",
+  "mode": "auto",
+  "extract_mode": "article"
+}
+```
+
+```json
+{
+  "url": "https://example.com/product/sku-123",
+  "mode": "auto",
+  "extract_mode": "ecommerce"
+}
+```
+
 **Success response (example)**
 ```json
 {

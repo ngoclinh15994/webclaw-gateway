@@ -49,6 +49,39 @@ API chính để đọc URL và chuyển về Markdown sạch.
 - `mode` (string, tùy chọn): `auto` | `fast_only` | `playwright_only` (mặc định `auto`)
 - `extract_mode` (string, tùy chọn): `article` | `ecommerce` (mặc định `article`)
 
+**Cách chọn tham số**
+
+- `mode="auto"` (khuyến nghị): chạy Cheerio trước (nhanh), rồi tự fallback sang Playwright nếu trang có dấu hiệu dynamic/bị chặn/HTML quá mỏng.
+- `mode="fast_only"`: chỉ dùng Cheerio để tối ưu tốc độ. Dùng khi bạn ưu tiên throughput và trang chủ yếu là HTML tĩnh.
+- `mode="playwright_only"`: ưu tiên browser ngay từ đầu cho các trang SPA/nặng JavaScript/cần render thực.
+- `extract_mode="article"` (mặc định): phù hợp nhất cho news/blog/docs; ưu tiên nội dung chính dễ đọc và Markdown gọn.
+- `extract_mode="ecommerce"`: phù hợp cho trang sản phẩm/danh mục/review; giữ lại nhiều khối dữ liệu thương mại hơn (giá, thông số, đánh giá...) thay vì lọc kiểu bài viết.
+
+**Lưu ý tương thích quan trọng**
+
+- `extract_mode="ecommerce"` **không dùng được** với `mode="fast_only"`.
+- Cặp hợp lệ khi dùng ecommerce:
+  - `mode="auto"` + `extract_mode="ecommerce"` (nên dùng trước)
+  - `mode="playwright_only"` + `extract_mode="ecommerce"` (khi muốn render bằng browser ngay từ đầu)
+
+**Ví dụ thực tế**
+
+```json
+{
+  "url": "https://example.com/news/abc",
+  "mode": "auto",
+  "extract_mode": "article"
+}
+```
+
+```json
+{
+  "url": "https://example.com/product/sku-123",
+  "mode": "auto",
+  "extract_mode": "ecommerce"
+}
+```
+
 **Response thành công (ví dụ)**
 ```json
 {
